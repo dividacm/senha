@@ -304,10 +304,20 @@
     }
 
     // ------------------ Ações ------------------
-    function next() {
-      state.number += 1; state.ts = Date.now();
-      updateDisplay(); announce(); broadcast();
-    }
+    import { runTransaction } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+function next() {
+  const numRef = ref(db, "fila/state/number");
+
+  runTransaction(numRef, (current) => {
+    return (current || 0) + 1; // sempre soma 1
+  }).then(() => {
+    console.log("Senha avançada com segurança");
+  }).catch((err) => {
+    console.error("Erro ao avançar senha:", err);
+  });
+}
+
     function back() {
       state.number = Math.max(0, state.number - 1); state.ts = Date.now();
       updateDisplay(); announce(); broadcast();
@@ -460,3 +470,4 @@
   </script>
 </body>
 </html>
+
