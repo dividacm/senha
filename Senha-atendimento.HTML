@@ -41,11 +41,13 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
 
 /* Efeito de destaque ao mudar senha */
 @keyframes flash{
-  0% { transform: scale(1); color: var(--accent); text-shadow: 0 6px 28px rgba(34,197,94,0.8);}
+  0% { transform: scale(1); color: var(--accent); text-shadow:0 6px 28px rgba(34,197,94,0.8);}
   50% { transform: scale(1.1); color: var(--text); text-shadow:0 6px 28px rgba(96,165,250,0.35);}
   100%{ transform: scale(1); color: var(--text); text-shadow:0 6px 28px rgba(96,165,250,0.35);}
 }
-.flash { animation: flash 0.6s ease-in-out; }
+.ticket .big.flash, .panel-only .ticket .big.flash {
+  animation: flash 0.6s ease-in-out;
+}
 </style>
 </head>
 <body>
@@ -61,7 +63,7 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
   <div class="ticket card">
     <div>
       <div class="big" id="senhaBig">A-000</div>
-      <div class="guiche" id="guicheTxt">Dirija-se ao guichê 1</div>
+      <div class="guiche" id="guicheTxt" text-align: "center">Dirija-se ao guichê 1</div>
     </div>
   </div>
 </section>
@@ -117,7 +119,7 @@ const db = getDatabase(app);
 const stateRef = ref(db,"fila/state");
 
 // Estado e elementos
-const state = {prefix:"A", number:0, guiche:"1", ts:Date.now()};
+const state = {prefix:"J", number:0, guiche:"1", ts:Date.now()};
 const el = {
   senhaBig: document.getElementById("senhaBig"),
   guicheTxt: document.getElementById("guicheTxt"),
@@ -126,7 +128,7 @@ const el = {
   guiche: document.getElementById("guiche"),
   voz: document.getElementById("voz"),
   clock: document.getElementById("clock"),
-  controls: document.querySelector(".controls")
+  controls: document.querySelector('.controls')
 };
 
 const pad = n=>String(n).padStart(3,"0");
@@ -145,7 +147,7 @@ function updateDisplay(){
   el.senhaBig.classList.add('flash');
 }
 
-// Firebase listener com concorrência
+// Firebase listener
 onValue(stateRef, snapshot=>{
   if(snapshot.exists()){
     const remote = snapshot.val();
@@ -156,7 +158,7 @@ onValue(stateRef, snapshot=>{
   }
 });
 
-// Envia estado ao Firebase de forma segura
+// Envia estado ao Firebase
 function broadcast(){
   state.ts = Date.now();
   runTransaction(stateRef, current=>{
@@ -179,7 +181,14 @@ function announce(){ playChime(); setTimeout(()=>speakSentence(`Senha ${state.pr
 function next(){ state.number++; broadcast(); announce(); updateDisplay();}
 function back(){ state.number=Math.max(0,state.number-1); broadcast(); announce(); updateDisplay();}
 function resetToZero(){ state.number=0; broadcast(); updateDisplay();}
-function initPanelMode(){ if(window.location.search.includes("painel=1")){document.body.classList.add("panel-only"); el.controls.style.display="none";}}
+function initPanelMode(){ 
+  const isPanel = new URL(location.href).searchParams.get('painel') === '1';
+  if(isPanel){ 
+    document.body.classList.add("panel-only"); 
+    if(el.controls) el.controls.style.display="none";
+    updateDisplay(); // força efeito visual
+  }
+}
 
 // Eventos UI
 el.prefix.addEventListener('input',()=>{state.prefix=el.prefix.value.toUpperCase(); broadcast(); updateDisplay();});
@@ -191,19 +200,26 @@ document.getElementById("btnBack").addEventListener('click',back);
 document.getElementById("btnRepeat").addEventListener('click',announce);
 document.getElementById("btnReset").addEventListener('click',()=>{resetToZero(); announce();});
 document.getElementById("btnClear").addEventListener('click',()=>{if(confirm("Zerar contador para 0?")) resetToZero();});
-document.getElementById("btnPainel").addEventListener('click',()=>{const url=new URL(location.href); url.searchParams.set('painel','1'); window.open(url.toString(),'_blank');});
+document.getElementById("btnPainel").addEventListener('click',()=>{
+  const url = new URL(location.href); url.searchParams.set("painel","1"); window.open(url.toString(), "_blank");
+});
 
-// Atalhos teclado
-window.addEventListener('keydown',e=>{if(['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName)) return; if(e.key.toLowerCase()==='n') next(); else if(e.key.toLowerCase()==='r') announce(); else if(e.key.toLowerCase()==='b') back(); else if(e.key==='0') resetToZero();});
+// Teclado
+window.addEventListener('keydown',e=>{
+  if(['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName)) return;
+  if(e.key.toLowerCase()==='n') next();
+  else if(e.key.toLowerCase()==='r') announce();
+  else if(e.key.toLowerCase()==='b') back();
+  else if(e.key==='0') resetToZero();
+});
 
 // Relógio
-setInterval(()=>{ const d=new Date(); el.clock.textContent=d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); },1000);
+setInterval(()=>{ const d=new Date(); el.clock.textContent=d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); },1000);
 
 // Inicialização
-document.body.addEventListener('click',()=>{try{const ctx=new (window.AudioContext||window.webkitAudioContext)();ctx.resume&&ctx.resume();}catch{}},{once:true});
-populateVoices();
-updateDisplay();
 initPanelMode();
+updateDisplay();
+document.body.addEventListener('click',()=>{try{const ctx=new (window.AudioContext||window.webkitAudioContext)(); ctx.resume&&ctx.resume();}catch{}},{once:true});
 </script>
 </body>
 </html>
