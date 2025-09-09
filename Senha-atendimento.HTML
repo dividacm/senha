@@ -1,130 +1,83 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <title>Operador - Chamada de Senhas</title>
-  <style>
-    body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-    #painel { font-size: 5em; margin: 20px 0; }
-    #guicheTxt { font-size: 2em; margin: 10px 0; }
-    .controls { margin: 20px 0; }
-    input, button { font-size: 1.2em; margin: 5px; padding: 5px 10px; }
-  </style>
-</head>
-<body>
-  <h1>Operador - Chamada de Senhas</h1>
+<script type="module">
+  // Importa Firebase (versão modular)
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+  import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
-  <div id="painel">
-    <div id="senhaBig">A-000</div>
-    <div id="guicheTxt">Dirija-se ao guichê 1</div>
-  </div>
+  // 🔑 Config do Firebase
+  const firebaseConfig = {
+    apiKey: "SUA_API_KEY",
+    authDomain: "fila-atendimento.firebaseapp.com",
+    databaseURL: "https://fila-atendimento-default-rtdb.firebaseio.com",
+    projectId: "fila-atendimento",
+    storageBucket: "fila-atendimento.appspot.com",
+    messagingSenderId: "813517035677",
+    appId: "SUA_APP_ID"
+  };
 
-  <div class="controls">
-    Prefixo: <input id="prefix" value="A" maxlength="1">
-    Número: <input id="numero" type="number" value="0" readonly>
-    Guichê: <input id="guiche" value="1">
-    <button onclick="next()">Próxima senha (N)</button>
-  </div>
+  // Inicializa Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getDatabase, ref, onValue, set, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+  // Estado global
+  const state = { prefix: "A", number: 0, guiche: "1", ts: Date.now() };
 
-    // 🔑 Configuração do Firebase (substitua pelos seus dados)
-    const firebaseConfig = {
-      apiKey: "AIzaSyDPcPaWLF4dxQ_091qiru1w9HXS05rtcz8",
-      authDomain: "fila-atendimento.firebaseapp.com",
-      databaseURL: "https://fila-atendimento-default-rtdb.firebaseio.com",
-      projectId: "fila-atendimento",
-      storageBucket: "fila-atendimento.firebasestorage.app",
-      messagingSenderId: "813517035677",
-      appId: "1:813517035677:web:caa3fedeac9719ff009c74"
-    };
+  // Referências aos elementos
+  const el = {
+    senhaBig: document.getElementById("senhaBig"),
+    guicheTxt: document.getElementById("guicheTxt"),
+    prefix: document.getElementById("prefix"),
+    numero: document.getElementById("numero"),
+    guiche: document.getElementById("guiche"),
+    controls: document.querySelector(".controls")
+  };
 
-    // Inicializa Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const auth = getAuth(app);
+  // Função auxiliar
+  const pad = n => String(n).padStart(3, "0");
 
-    // Estado local
-    const state = { prefix: "A", number: 0, guiche: "1", ts: Date.now() };
+  function updateDisplay() {
+    el.senhaBig.textContent = `${state.prefix}-${pad(state.number)}`;
+    el.guicheTxt.textContent = `Dirija-se ao guichê ${state.guiche}`;
+    el.prefix.value = state.prefix;
+    el.numero.value = state.number;
+    el.guiche.value = state.guiche;
+  }
 
-    // Elementos da página
-    const el = {
-      senhaBig: document.getElementById("senhaBig"),
-      guicheTxt: document.getElementById("guicheTxt"),
-      prefix: document.getElementById("prefix"),
-      numero: document.getElementById("numero"),
-      guiche: document.getElementById("guiche"),
-    };
+  // 🔥 Sincronização com Firebase
+  const stateRef = ref(db, "fila/state");
 
-    const pad = n => String(n).padStart(3, "0");
-
-    function updateDisplay() {
-      el.senhaBig.textContent = `${state.prefix}-${pad(state.number)}`;
-      el.guicheTxt.textContent = `Dirija-se ao guichê ${state.guiche}`;
-      el.prefix.value = state.prefix;
-      el.numero.value = state.number;
-      el.guiche.value = state.guiche;
+  // Escuta mudanças no banco
+  onValue(stateRef, (snapshot) => {
+    if (snapshot.exists()) {
+      Object.assign(state, snapshot.val());
+      updateDisplay();
     }
+  });
 
-    // Referência principal no Firebase
-    const stateRef = ref(db, "fila/state");
+  // Grava estado no banco
+  function broadcast() {
+    state.ts = Date.now();
+    set(stateRef, state);
+  }
 
-    // Escuta atualizações em tempo real
-    onValue(stateRef, (snapshot) => {
-      if (snapshot.exists()) {
-        Object.assign(state, snapshot.val());
-        updateDisplay();
-      }
-    });
+  // Eventos UI
+  el.prefix.addEventListener("input", () => { state.prefix = el.prefix.value.toUpperCase(); broadcast(); });
+  el.numero.addEventListener("change", () => { state.number = parseInt(el.numero.value || 0); broadcast(); });
+  el.guiche.addEventListener("input", () => { state.guiche = el.guiche.value; broadcast(); });
 
-    // Atualiza prefixo e guichê no Firebase
-    el.prefix.addEventListener("input", () => {
-      state.prefix = el.prefix.value;
-      set(stateRef, { ...state, ts: Date.now() });
-    });
+  function next() {
+    state.number++;
+    broadcast();
+  }
 
-    el.guiche.addEventListener("input", () => {
-      state.guiche = el.guiche.value;
-      set(stateRef, { ...state, ts: Date.now() });
-    });
+  // Atalho no teclado
+  window.addEventListener("keydown", (e) => {
+    if (e.key.toLowerCase() === "n") next();
+  });
 
-    // Incrementa número de forma segura (sem conflito entre operadores)
-    function next() {
-      const numRef = ref(db, "fila/state/number");
+  updateDisplay();
 
-      runTransaction(numRef, (current) => {
-        return (current || 0) + 1;
-      }).then(() => {
-        // Atualiza outros campos (prefixo e guichê)
-        set(stateRef, {
-          prefix: state.prefix,
-          number: state.number, // atualizado automaticamente pelo onValue
-          guiche: state.guiche,
-          ts: Date.now()
-        });
-      }).catch((err) => {
-        console.error("Erro ao avançar senha:", err);
-      });
-    }
-
-    // Atalho no teclado (tecla "N")
-    window.addEventListener("keydown", (e) => {
-      if (e.key.toLowerCase() === "n") next();
-    });
-
-    updateDisplay();
-
-    // Login automático do operador (ajuste usuário/senha no Firebase Auth)
-    signInWithEmailAndPassword(auth, "operador@empresa.com", "SENHA_FORTE")
-      .then(userCred => {
-        console.log("Operador logado:", userCred.user.uid);
-      })
-      .catch(err => {
-        alert("Erro de login: " + err.message);
-      });
-  </script>
-</body>
-</html>
+  // Modo painel (sem controles)
+  if (window.location.search.includes("painel=1")) {
+    el.controls.style.display = "none";
+  }
+</script>
