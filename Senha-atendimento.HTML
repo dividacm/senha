@@ -64,7 +64,7 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
   <div class="ticket card">
     <div>
       <div class="big" id="senhaBig">J-000</div>
-      <div class="guiche" id="guicheTxt" text-align: "center">Dirija-se a Dívida Ativa </div>
+      <div class="guiche" id="guicheTxt" text-align: "center"></div>
     </div>
   </div>
 </section>
@@ -129,7 +129,7 @@ const db = getDatabase(app);
 const stateRef = ref(db,"fila/state");
 
 // Estado e elementos
-const state = {prefix:"J", number:0, guiche:"1", ts:Date.now()};
+const state = {prefix:"J", number:0, guiche:"", ts:Date.now()};
 const el = {
   senhaBig: document.getElementById("senhaBig"),
   guicheTxt: document.getElementById("guicheTxt"),
@@ -146,7 +146,7 @@ const pad = n=>String(n).padStart(3,"0");
 // Atualiza display + efeito visual
 function updateDisplay(){
   el.senhaBig.textContent=`${state.prefix.toUpperCase()}-${pad(state.number)}`;
-  el.guicheTxt.textContent=`Dirija-se ao guichê ${state.guiche}`;
+  el.guicheTxt.textContent=`Dirija-se a Dívida Ativa no mezanino${state.guiche}`;
   el.prefix.value=state.prefix;
   el.numero.value=state.number;
   el.guiche.value=state.guiche;
@@ -233,6 +233,7 @@ document.body.addEventListener('click',()=>{try{const ctx=new (window.AudioConte
 </script>
 </body>
 </html>
+
 
 
 
