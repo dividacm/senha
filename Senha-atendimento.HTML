@@ -70,15 +70,40 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
 
 <aside class="controls">
   <div class="card" style="display:flex;flex-direction:column;gap:12px">
-    <div class="row">
-      <div class="field"><label for="prefix">Prefixo</label><input id="prefix" maxlength="3" value="J" /></div>
-      <div class="field"><label for="numero">Número atual</label><input id="numero" type="number" min="0" value="0" /></div>
+
+    <div class="row" style="display:flex;align-items:center;gap:8px">
+      <div class="field" style="flex:1">
+        <label for="prefix">Prefixo</label>
+        <input id="prefix" maxlength="3" value="J" />
+      </div>
+      <button class="primary" id="btnPrefix">OK</button>
     </div>
-    <div class="row">
-      <div class="field"><label for="guiche">Guichê / Mesa</label><input id="guiche" value="1" /></div>
-      <div class="field"><label for="voz">Voz</label><select id="voz"></select></div>
+
+    <div class="row" style="display:flex;align-items:center;gap:8px">
+      <div class="field" style="flex:1">
+        <label for="numero">Número atual</label>
+        <input id="numero" type="number" min="0" value="0" />
+      </div>
+      <button class="primary" id="btnNumero">OK</button>
     </div>
-    <div class="btns">
+
+    <div class="row" style="display:flex;align-items:center;gap:8px">
+      <div class="field" style="flex:1">
+        <label for="guiche">Guichê / Mesa</label>
+        <input id="guiche" value="1" />
+      </div>
+      <button class="primary" id="btnGuiche">OK</button>
+    </div>
+
+    <div class="row" style="display:flex;align-items:center;gap:8px">
+      <div class="field" style="flex:1">
+        <label for="voz">Voz</label>
+        <select id="voz"></select>
+      </div>
+      <button class="primary" id="btnVoz">OK</button>
+    </div>
+
+    <div class="btns" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px">
       <button class="primary" id="btnNext">Próxima senha (N)</button>
       <button class="ghost" id="btnRepeat">Repetir anúncio (R)</button>
       <button class="ghost" id="btnBack">Voltar (B)</button>
@@ -86,9 +111,7 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
       <button class="ghost" id="btnPainel">Abrir modo painel</button>
       <button class="danger" id="btnClear">Zerar contador</button>
     </div>
-  </div>
-  <div class="card" style="font-size:13px;line-height:1.5">
-    <div>Atalhos: <kbd>N</kbd> próxima, <kbd>R</kbd> repetir, <kbd>B</kbd> voltar, <kbd>0</kbd> zerar.</div>
+
   </div>
 </aside>
 </main>
@@ -223,4 +246,5 @@ document.body.addEventListener('click',()=>{try{const ctx=new (window.AudioConte
 </script>
 </body>
 </html>
+
 
