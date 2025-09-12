@@ -111,7 +111,7 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+import { getDatabase, ref, onValue, runTransaction, get } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
 // Config Firebase
 const firebaseConfig = {
@@ -128,8 +128,11 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const stateRef = ref(db,"fila/state");
 
-// Estado e elementos
-const state = {prefix:"J", number:0, guiche:"", ts:Date.now()};
+// Estado
+let state = {prefix:"J", number:0, guiche:"", ts:Date.now()};
+let loaded = false;
+
+// Elementos
 const el = {
   senhaBig: document.getElementById("senhaBig"),
   guicheTxt: document.getElementById("guicheTxt"),
@@ -146,12 +149,11 @@ const pad = n=>String(n).padStart(3,"0");
 // Atualiza display + efeito visual
 function updateDisplay(){
   el.senhaBig.textContent=`${state.prefix.toUpperCase()}-${pad(state.number)}`;
-  el.guicheTxt.textContent=`Dirija-se a Dívida Ativa no mezanino${state.guiche}`;
+  el.guicheTxt.textContent=`Dirija-se a Dívida Ativa no mezanino ${state.guiche}`;
   el.prefix.value=state.prefix;
   el.numero.value=state.number;
   el.guiche.value=state.guiche;
 
-  // Efeito visual
   el.senhaBig.classList.remove('flash');
   void el.senhaBig.offsetWidth;
   el.senhaBig.classList.add('flash');
@@ -170,6 +172,7 @@ onValue(stateRef, snapshot=>{
 
 // Envia estado ao Firebase
 function broadcast(){
+  if(!loaded) return;
   state.ts = Date.now();
   runTransaction(stateRef, current=>{
     if(!current || current.ts <= state.ts){
@@ -179,26 +182,66 @@ function broadcast(){
   });
 }
 
+// Carregar estado inicial
+get(stateRef).then(snapshot=>{
+  if(snapshot.exists()){
+    state = snapshot.val();
+  }
+  updateDisplay();
+  loaded = true;
+});
+
 // Áudio e TTS
-function playChime(){ const ctx=new (window.AudioContext||window.webkitAudioContext)(); const o=ctx.createOscillator(); const g=ctx.createGain(); o.type='triangle'; o.frequency.value=880; o.connect(g); g.connect(ctx.destination); g.gain.setValueAtTime(0.0001,ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.4,ctx.currentTime+0.02); g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.4); o.start(); o.stop(ctx.currentTime+0.45);}
-const VOICE_LANG_PREF=['pt-BR','pt_PT','pt'];
-function populateVoices(){ const voices=speechSynthesis.getVoices(); el.voz.innerHTML=''; voices.forEach(v=>{const opt=document.createElement('option'); opt.value=v.name; opt.textContent=`${v.name} (${v.lang})`; el.voz.appendChild(opt);}); if(!voices.length){const opt=document.createElement('option'); opt.value=''; opt.textContent='Padrão do sistema'; el.voz.appendChild(opt);}}
-speechSynthesis.onvoiceschanged=populateVoices;
-function speakSentence(text){ const u=new SpeechSynthesisUtterance(text); const voice=speechSynthesis.getVoices().find(v=>v.name===el.voz.value); if(voice) u.voice=voice; u.lang=(voice&&voice.lang)||'pt-BR'; u.rate=1; u.pitch=1; u.volume=1; speechSynthesis.cancel(); speechSynthesis.speak(u);}
-function announce(){ playChime(); setTimeout(()=>speakSentence(`Senha ${state.prefix} ${state.number}, dirigir-se ao guichê ${state.guiche}.`),420);}
+function playChime(){ 
+  const ctx=new (window.AudioContext||window.webkitAudioContext)(); 
+  const o=ctx.createOscillator(); 
+  const g=ctx.createGain(); 
+  o.type='triangle'; 
+  o.frequency.value=880; 
+  o.connect(g); g.connect(ctx.destination); 
+  g.gain.setValueAtTime(0.0001,ctx.currentTime); 
+  g.gain.exponentialRampToValueAtTime(0.4,ctx.currentTime+0.02); 
+  g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.4); 
+  o.start(); 
+  o.stop(ctx.currentTime+0.45);
+}
+
+// Popular vozes
+function loadVoices() {
+  const voices = speechSynthesis.getVoices();
+  el.voz.innerHTML = "";
+  voices.filter(v => v.lang.startsWith("pt"))
+    .forEach(v => {
+      const opt = document.createElement("option");
+      opt.value = v.name;
+      opt.textContent = `${v.name} (${v.lang})`;
+      el.voz.appendChild(opt);
+    });
+  if (el.voz.options.length > 0) {
+    el.voz.value = el.voz.options[0].value;
+  }
+}
+speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
+
+function speakSentence(text){ 
+  const u=new SpeechSynthesisUtterance(text); 
+  const voice=speechSynthesis.getVoices().find(v=>v.name===el.voz.value); 
+  if(voice) u.voice=voice; 
+  u.lang=(voice&&voice.lang)||'pt-BR'; 
+  speechSynthesis.cancel(); 
+  speechSynthesis.speak(u);
+}
+
+function announce(){ 
+  playChime(); 
+  setTimeout(()=>speakSentence(`Senha ${state.prefix} ${state.number}, dirigir-se ao guichê ${state.guiche}.`),420);
+}
 
 // Ações
 function next(){ state.number++; broadcast(); announce(); updateDisplay();}
 function back(){ state.number=Math.max(0,state.number-1); broadcast(); announce(); updateDisplay();}
 function resetToZero(){ state.number=0; broadcast(); updateDisplay();}
-function initPanelMode(){ 
-  const isPanel = new URL(location.href).searchParams.get('painel') === '1';
-  if(isPanel){ 
-    document.body.classList.add("panel-only"); 
-    if(el.controls) el.controls.style.display="none";
-    updateDisplay(); // força efeito visual
-  }
-}
 
 // Eventos UI
 el.prefix.addEventListener('input',()=>{state.prefix=el.prefix.value.toUpperCase(); broadcast(); updateDisplay();});
@@ -210,9 +253,7 @@ document.getElementById("btnBack").addEventListener('click',back);
 document.getElementById("btnRepeat").addEventListener('click',announce);
 document.getElementById("btnReset").addEventListener('click',()=>{resetToZero(); announce();});
 document.getElementById("btnClear").addEventListener('click',()=>{if(confirm("Zerar contador para 0?")) resetToZero();});
-document.getElementById("btnPainel").addEventListener('click',()=>{
-  const url = new URL(location.href); url.searchParams.set("painel","1"); window.open(url.toString(), "_blank");
-});
+document.getElementById("btnPainel").addEventListener('click',()=>{const url = new URL(location.href); url.searchParams.set("painel","1"); window.open(url.toString(), "_blank");});
 
 // Teclado
 window.addEventListener('keydown',e=>{
@@ -226,21 +267,19 @@ window.addEventListener('keydown',e=>{
 // Relógio
 setInterval(()=>{ const d=new Date(); el.clock.textContent=d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); },1000);
 
-// Inicialização
+// Inicialização painel
+function initPanelMode(){ 
+  const isPanel = new URL(location.href).searchParams.get('painel') === '1';
+  if(isPanel){ 
+    document.body.classList.add("panel-only"); 
+    if(el.controls) el.controls.style.display="none";
+    updateDisplay();
+  }
+}
 initPanelMode();
-updateDisplay();
+
+// Corrigir autoplay do áudio no Chrome
 document.body.addEventListener('click',()=>{try{const ctx=new (window.AudioContext||window.webkitAudioContext)(); ctx.resume&&ctx.resume();}catch{}},{once:true});
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
