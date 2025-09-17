@@ -82,9 +82,6 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
  <div class="row"> 
    <div class="field"><label for="guiche">Guichê / Mesa</label><input id="guiche" value="1" />
   </div> 
-   <div class="field">
-    <label for="voz">Voz</label><select id="voz"></select>
-   </div> 
   </div>  
  </div>
 </aside>
@@ -109,6 +106,14 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
 </footer>
 </div>
 
+<!-- Áudio de sino -->
+<audio id="chimeLong" preload="auto">
+  <source src="https://raw.githubusercontent.com/dividacm/senha/main/Senha.mp3" type="audio/mpeg">
+</audio>
+<audio id="chimeShort" preload="auto">
+  <source src="https://raw.githubusercontent.com/dividacm/senha/main/Senha.mp3" type="audio/mpeg">
+</audio>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
 import { getDatabase, ref, onValue, runTransaction, get } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
@@ -128,11 +133,9 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const stateRef = ref(db,"fila/state");
 
-// Estado
 let state = {prefix:"J", number:0, guiche:"", ts:Date.now()};
 let loaded = false;
 
-// Elementos
 const el = {
   senhaBig: document.getElementById("senhaBig"),
   guicheTxt: document.getElementById("guicheTxt"),
@@ -145,7 +148,6 @@ const el = {
 
 const pad = n=>String(n).padStart(3,"0");
 
-// Atualiza display + efeito visual
 function updateDisplay(){
   el.senhaBig.textContent=`${state.prefix.toUpperCase()}-${pad(state.number)}`;
   el.guicheTxt.textContent=`Dirija-se a Dívida Ativa no mezanino ${state.guiche}`;
@@ -158,7 +160,6 @@ function updateDisplay(){
   el.senhaBig.classList.add('flash');
 }
 
-// Firebase listener
 onValue(stateRef, snapshot=>{
   if(snapshot.exists()){
     const remote = snapshot.val();
@@ -169,7 +170,6 @@ onValue(stateRef, snapshot=>{
   }
 });
 
-// Envia estado ao Firebase
 function broadcast(){
   if(!loaded) return;
   state.ts = Date.now();
@@ -181,7 +181,6 @@ function broadcast(){
   });
 }
 
-// Carregar estado inicial
 get(stateRef).then(snapshot=>{
   if(snapshot.exists()){
     state = snapshot.val();
@@ -190,52 +189,18 @@ get(stateRef).then(snapshot=>{
   loaded = true;
 });
 
-// Sons de chamada (estilo sino)
-function playChimeLong(){ 
-  const ctx=new (window.AudioContext||window.webkitAudioContext)(); 
-
-  // Nota grave
-  const o1=ctx.createOscillator(); 
-  const g1=ctx.createGain(); 
-  o1.type='sine'; 
-  o1.frequency.value=660; 
-  o1.connect(g1); g1.connect(ctx.destination); 
-  g1.gain.setValueAtTime(0.0001,ctx.currentTime); 
-  g1.gain.exponentialRampToValueAtTime(0.6,ctx.currentTime+0.05); 
-  g1.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.5); 
-  o1.start(); 
-  o1.stop(ctx.currentTime+0.55);
-
-  // Nota aguda
-  const o2=ctx.createOscillator(); 
-  const g2=ctx.createGain(); 
-  o2.type='sine'; 
-  o2.frequency.value=880; 
-  o2.connect(g2); g2.connect(ctx.destination); 
-  g2.gain.setValueAtTime(0.0001,ctx.currentTime+0.25); 
-  g2.gain.exponentialRampToValueAtTime(0.5,ctx.currentTime+0.3); 
-  g2.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.8); 
-  o2.start(ctx.currentTime+0.25); 
-  o2.stop(ctx.currentTime+0.85);
+// 🔊 Sons via audio HTML
+function playChimeLong() {
+  const audio = document.getElementById('chimeLong');
+  audio.currentTime = 0;
+  audio.play();
 }
-
-function playChimeShort(){ 
-  const ctx=new (window.AudioContext||window.webkitAudioContext)(); 
-  const o=ctx.createOscillator(); 
-  const g=ctx.createGain(); 
-  o.type='sine'; 
-  o.frequency.value=880; 
-  o.connect(g); g.connect(ctx.destination); 
-  g.gain.setValueAtTime(0.0001,ctx.currentTime); 
-  g.gain.exponentialRampToValueAtTime(0.5,ctx.currentTime+0.03); 
-  g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.25); 
-  o.start(); 
-  o.stop(ctx.currentTime+0.3);
+function playChimeShort() {
+  const audio = document.getElementById('chimeShort');
+  audio.currentTime = 0;
+  audio.play();
 }
-
-function announce(){ 
-  playChimeLong(); 
-}
+function announce() { playChimeLong(); }
 
 // Ações
 function next(){ state.number++; broadcast(); announce(); updateDisplay();}
@@ -277,10 +242,10 @@ function initPanelMode(){
 }
 initPanelMode();
 
-
+// 🔊 Desbloqueio de áudio no Chrome/Edge
+document.body.addEventListener('click', () => {
+  document.querySelectorAll('audio').forEach(a => a.play().catch(()=>{}));
+}, { once: true });
 </script>
 </body>
 </html>
-
-
-
