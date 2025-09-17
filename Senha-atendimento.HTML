@@ -110,9 +110,6 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
 <audio id="chimeLong" preload="auto">
   <source src="https://raw.githubusercontent.com/dividacm/senha/main/Senha.mp3" type="audio/mpeg">
 </audio>
-<audio id="chimeShort" preload="auto">
-  <source src="https://raw.githubusercontent.com/dividacm/senha/main/Senha.mp3" type="audio/mpeg">
-</audio>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
@@ -160,16 +157,17 @@ function updateDisplay(){
   el.senhaBig.classList.add('flash');
 }
 
-onValue(stateRef, snapshot=>{
-  if(snapshot.exists()){
-    const remote = snapshot.val();
-    if(remote.ts > state.ts){
-      Object.assign(state, remote);
-      updateDisplay();
-    }
-  }
-});
+// 🔊 Desbloqueio automático do áudio
+let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+audioCtx.resume().catch(()=>{}); // garante desbloqueio inicial
 
+function playChimeLong() {
+  const audio = document.getElementById('chimeLong');
+  audio.currentTime = 0;
+  audio.play().catch(()=>{}); // força play mesmo sem interação
+}
+
+// Atualizar estado no Firebase
 function broadcast(){
   if(!loaded) return;
   state.ts = Date.now();
@@ -181,6 +179,19 @@ function broadcast(){
   });
 }
 
+// Receber atualizações do Firebase
+onValue(stateRef, snapshot => {
+  if(snapshot.exists()){
+    const remote = snapshot.val();
+    if(remote.ts > state.ts){
+      Object.assign(state, remote);
+      updateDisplay();
+      playChimeLong(); // toca som em todos os dispositivos conectados
+    }
+  }
+});
+
+// Inicializar estado
 get(stateRef).then(snapshot=>{
   if(snapshot.exists()){
     state = snapshot.val();
@@ -189,22 +200,9 @@ get(stateRef).then(snapshot=>{
   loaded = true;
 });
 
-// 🔊 Sons via audio HTML
-function playChimeLong() {
-  const audio = document.getElementById('chimeLong');
-  audio.currentTime = 0;
-  audio.play();
-}
-function playChimeShort() {
-  const audio = document.getElementById('chimeShort');
-  audio.currentTime = 0;
-  audio.play();
-}
-function announce() { playChimeLong(); }
-
 // Ações
-function next(){ state.number++; broadcast(); announce(); updateDisplay();}
-function back(){ state.number=Math.max(0,state.number-1); broadcast(); announce(); updateDisplay();}
+function next(){ state.number++; broadcast(); updateDisplay(); playChimeLong();}
+function back(){ state.number=Math.max(0,state.number-1); broadcast(); updateDisplay(); playChimeLong();}
 function resetToZero(){ state.number=0; broadcast(); updateDisplay();}
 
 // Eventos UI
@@ -214,8 +212,8 @@ el.guiche.addEventListener('input',()=>{state.guiche=el.guiche.value; broadcast(
 
 document.getElementById("btnNext").addEventListener('click',next);
 document.getElementById("btnBack").addEventListener('click',back);
-document.getElementById("btnRepeat").addEventListener('click',announce);
-document.getElementById("btnReset").addEventListener('click',()=>{resetToZero(); announce();});
+document.getElementById("btnRepeat").addEventListener('click',()=>playChimeLong());
+document.getElementById("btnReset").addEventListener('click',()=>{resetToZero(); playChimeLong();});
 document.getElementById("btnClear").addEventListener('click',()=>{if(confirm("Zerar contador para 0?")) resetToZero();});
 document.getElementById("btnPainel").addEventListener('click',()=>{const url = new URL(location.href); url.searchParams.set("painel","1"); window.open(url.toString(), "_blank");});
 
@@ -223,7 +221,7 @@ document.getElementById("btnPainel").addEventListener('click',()=>{const url = n
 window.addEventListener('keydown',e=>{
   if(['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName)) return;
   if(e.key.toLowerCase()==='n') next();
-  else if(e.key.toLowerCase()==='r') announce();
+  else if(e.key.toLowerCase()==='r') playChimeLong();
   else if(e.key.toLowerCase()==='b') back();
   else if(e.key==='0') resetToZero();
 });
@@ -241,11 +239,6 @@ function initPanelMode(){
   }
 }
 initPanelMode();
-
-// 🔊 Desbloqueio de áudio no Chrome/Edge
-document.body.addEventListener('click', () => {
-  document.querySelectorAll('audio').forEach(a => a.play().catch(()=>{}));
-}, { once: true });
 </script>
 </body>
 </html>
