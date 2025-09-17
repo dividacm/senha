@@ -191,51 +191,51 @@ get(stateRef).then(snapshot=>{
   loaded = true;
 });
 
-// Áudio e TTS
-function playChime(){ 
+// Sons de chamada (estilo sino)
+function playChimeLong(){ 
+  const ctx=new (window.AudioContext||window.webkitAudioContext)(); 
+
+  // Nota grave
+  const o1=ctx.createOscillator(); 
+  const g1=ctx.createGain(); 
+  o1.type='sine'; 
+  o1.frequency.value=660; 
+  o1.connect(g1); g1.connect(ctx.destination); 
+  g1.gain.setValueAtTime(0.0001,ctx.currentTime); 
+  g1.gain.exponentialRampToValueAtTime(0.6,ctx.currentTime+0.05); 
+  g1.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.5); 
+  o1.start(); 
+  o1.stop(ctx.currentTime+0.55);
+
+  // Nota aguda
+  const o2=ctx.createOscillator(); 
+  const g2=ctx.createGain(); 
+  o2.type='sine'; 
+  o2.frequency.value=880; 
+  o2.connect(g2); g2.connect(ctx.destination); 
+  g2.gain.setValueAtTime(0.0001,ctx.currentTime+0.25); 
+  g2.gain.exponentialRampToValueAtTime(0.5,ctx.currentTime+0.3); 
+  g2.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.8); 
+  o2.start(ctx.currentTime+0.25); 
+  o2.stop(ctx.currentTime+0.85);
+}
+
+function playChimeShort(){ 
   const ctx=new (window.AudioContext||window.webkitAudioContext)(); 
   const o=ctx.createOscillator(); 
   const g=ctx.createGain(); 
-  o.type='triangle'; 
+  o.type='sine'; 
   o.frequency.value=880; 
   o.connect(g); g.connect(ctx.destination); 
   g.gain.setValueAtTime(0.0001,ctx.currentTime); 
-  g.gain.exponentialRampToValueAtTime(0.4,ctx.currentTime+0.02); 
-  g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.4); 
+  g.gain.exponentialRampToValueAtTime(0.5,ctx.currentTime+0.03); 
+  g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.25); 
   o.start(); 
-  o.stop(ctx.currentTime+0.45);
-}
-
-// Popular vozes
-function loadVoices() {
-  const voices = speechSynthesis.getVoices();
-  el.voz.innerHTML = "";
-  voices.filter(v => v.lang.startsWith("pt"))
-    .forEach(v => {
-      const opt = document.createElement("option");
-      opt.value = v.name;
-      opt.textContent = `${v.name} (${v.lang})`;
-      el.voz.appendChild(opt);
-    });
-  if (el.voz.options.length > 0) {
-    el.voz.value = el.voz.options[0].value;
-  }
-}
-speechSynthesis.onvoiceschanged = loadVoices;
-loadVoices();
-
-function speakSentence(text){ 
-  const u=new SpeechSynthesisUtterance(text); 
-  const voice=speechSynthesis.getVoices().find(v=>v.name===el.voz.value); 
-  if(voice) u.voice=voice; 
-  u.lang=(voice&&voice.lang)||'pt-BR'; 
-  speechSynthesis.cancel(); 
-  speechSynthesis.speak(u);
+  o.stop(ctx.currentTime+0.3);
 }
 
 function announce(){ 
-  playChime(); 
-  setTimeout(()=>speakSentence(`Senha ${state.prefix} ${state.number}, dirigir-se ao guichê ${state.guiche}.`),420);
+  playChimeLong(); 
 }
 
 // Ações
@@ -283,3 +283,4 @@ document.body.addEventListener('click',()=>{try{const ctx=new (window.AudioConte
 </script>
 </body>
 </html>
+
