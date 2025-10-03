@@ -157,14 +157,29 @@ function updateDisplay(){
   el.senhaBig.classList.add('flash');
 }
 
-// 🔊 Desbloqueio automático do áudio
-let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-audioCtx.resume().catch(()=>{}); // garante desbloqueio inicial
+// Desbloquear áudio no primeiro clique do usuário
+function unlockAudio() {
+  const audio = document.getElementById('chimeLong');
+  audio.play().then(() => {
+    audio.pause();
+    audio.currentTime = 0;
+    console.log("🔊 Áudio desbloqueado");
+  }).catch(err => {
+    console.warn("Erro ao desbloquear áudio:", err);
+  });
+
+  document.removeEventListener("click", unlockAudio);
+  document.removeEventListener("keydown", unlockAudio);
+}
+
+// Ouvir primeira interação do usuário
+document.addEventListener("click", unlockAudio);
+document.addEventListener("keydown", unlockAudio);
 
 function playChimeLong() {
   const audio = document.getElementById('chimeLong');
   audio.currentTime = 0;
-  audio.play().catch(()=>{}); // força play mesmo sem interação
+  audio.play().catch(err => console.warn("Falha ao tocar áudio:", err));
 }
 
 // Atualizar estado no Firebase
@@ -242,3 +257,4 @@ initPanelMode();
 </script>
 </body>
 </html>
+
