@@ -106,10 +106,10 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
 </footer>
 </div>
 
-<!-- Áudio de sino -->
+/*<!-- Áudio de sino -->
 <audio id="chimeLong" preload="auto">
   <source src="https://raw.githubusercontent.com/dividacm/senha/main/Senha.mp3" type="audio/mpeg">
-</audio>
+</audio>*/
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
@@ -218,7 +218,7 @@ onValue(stateRef, snapshot => {
     if(remote.ts > state.ts){
       Object.assign(state, remote);
       updateDisplay();
-      playChimeLong(); // toca som em todos os dispositivos conectados
+      anunciarSenha(); // toca som em todos os dispositivos conectados
     }
   }
 });
@@ -274,5 +274,6 @@ initPanelMode();
 </script>
 </body>
 </html>
+
 
 
