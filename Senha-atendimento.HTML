@@ -157,7 +157,7 @@ function updateDisplay(){
   el.senhaBig.classList.add('flash');
 }
 
-// Desbloquear áudio no primeiro clique do usuário
+/* Desbloquear áudio no primeiro clique do usuário
 function unlockAudio() {
   const audio = document.getElementById('chimeLong');
   audio.play().then(() => {
@@ -173,13 +173,30 @@ function unlockAudio() {
 }
 
 // Ouvir primeira interação do usuário
-document.addEventListener("click", unlockAudio);
+*document.addEventListener("click", unlockAudio);
 document.addEventListener("keydown", unlockAudio);
 
 function playChimeLong() {
   const audio = document.getElementById('chimeLong');
   audio.currentTime = 0;
   audio.play().catch(err => console.warn("Falha ao tocar áudio:", err));
+}
+*/
+
+// 🔊 Falar senha e guichê com Web Speech API
+function anunciarSenha() {
+  const senha = `${state.prefix.toUpperCase()}-${pad(state.number)}`;
+  const guiche = state.guiche ? `dirija-se ao mezanino` : "";
+  const frase = `Senha ${senha}. ${guiche}`;
+  
+  const msg = new SpeechSynthesisUtterance(frase);
+  msg.lang = "pt-BR";
+  msg.rate = 1;
+  msg.pitch = 1;
+  msg.volume = 1;
+
+  window.speechSynthesis.cancel(); // evita sobreposição
+  window.speechSynthesis.speak(msg);
 }
 
 // Atualizar estado no Firebase
@@ -216,8 +233,8 @@ get(stateRef).then(snapshot=>{
 });
 
 // Ações
-function next(){ state.number++; broadcast(); updateDisplay(); playChimeLong();}
-function back(){ state.number=Math.max(0,state.number-1); broadcast(); updateDisplay(); playChimeLong();}
+function next(){ state.number++; broadcast(); updateDisplay(); anunciarSenha();}
+function back(){ state.number=Math.max(0,state.number-1); broadcast(); updateDisplay(); anunciarSenha();}
 function resetToZero(){ state.number=0; broadcast(); updateDisplay();}
 
 // Eventos UI
@@ -227,8 +244,8 @@ el.guiche.addEventListener('input',()=>{state.guiche=el.guiche.value; broadcast(
 
 document.getElementById("btnNext").addEventListener('click',next);
 document.getElementById("btnBack").addEventListener('click',back);
-document.getElementById("btnRepeat").addEventListener('click',()=>playChimeLong());
-document.getElementById("btnReset").addEventListener('click',()=>{resetToZero(); playChimeLong();});
+document.getElementById("btnRepeat").addEventListener('click',()=>anunciarSenha());
+document.getElementById("btnReset").addEventListener('click',()=>{resetToZero(); anunciarSenha();});
 document.getElementById("btnClear").addEventListener('click',()=>{if(confirm("Zerar contador para 0?")) resetToZero();});
 document.getElementById("btnPainel").addEventListener('click',()=>{const url = new URL(location.href); url.searchParams.set("painel","1"); window.open(url.toString(), "_blank");});
 
@@ -236,7 +253,7 @@ document.getElementById("btnPainel").addEventListener('click',()=>{const url = n
 window.addEventListener('keydown',e=>{
   if(['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName)) return;
   if(e.key.toLowerCase()==='n') next();
-  else if(e.key.toLowerCase()==='r') playChimeLong();
+  else if(e.key.toLowerCase()==='r') anunciarSenha();
   else if(e.key.toLowerCase()==='b') back();
   else if(e.key==='0') resetToZero();
 });
@@ -257,4 +274,5 @@ initPanelMode();
 </script>
 </body>
 </html>
+
 
