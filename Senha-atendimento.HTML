@@ -190,12 +190,28 @@ function anunciarSenha() {
   const frase = `Senha ${senha}. ${guiche}`;
   
   const msg = new SpeechSynthesisUtterance(frase);
+  
+  // 1. Pegar todas as vozes disponíveis no sistema
+  const vozes = window.speechSynthesis.getVoices();
+
+  // 2. Tentar encontrar uma voz feminina em português
+  // Procuramos por nomes comuns de vozes femininas ou marcas de voz do sistema
+  const vozFeminina = vozes.find(voz => 
+    voz.lang === 'pt-BR' && 
+    (voz.name.includes('Maria') || voz.name.includes('Luciana') || voz.name.includes('Google') || voz.name.includes('Feminine'))
+  );
+
+  // 3. Se encontrar, aplica a voz; se não, ele usará a padrão do sistema
+  if (vozFeminina) {
+    msg.voice = vozFeminina;
+  }
+
   msg.lang = "pt-BR";
   msg.rate = 1;
   msg.pitch = 1;
   msg.volume = 1;
 
-  window.speechSynthesis.cancel(); // evita sobreposição
+  window.speechSynthesis.cancel();
   window.speechSynthesis.speak(msg);
 }
 
@@ -274,6 +290,7 @@ initPanelMode();
 </script>
 </body>
 </html>
+
 
 
 
