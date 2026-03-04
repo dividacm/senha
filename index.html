@@ -36,23 +36,23 @@ header{display:flex;justify-content:space-between;align-items:center;gap:16px; f
 /* GRID REORGANIZADO: PAINEL EM CIMA, CONTROLES LADO A LADO EMBAIXO */
 .grid{
   display:grid;
-  grid-template-columns: 1fr 1fr; /* Duas colunas de tamanhos iguais na base */
-  grid-template-rows: auto auto; /* Linha de cima (senha) estica, linha de baixo ajusta ao conteúdo */
+  grid-template-columns: 1fr 1fr; 
+  grid-template-rows: auto auto; 
   gap:16px;
-  flex: 1; /* Ocupa todo o espaço entre o header e o footer */
+  flex: 1; 
   min-height: 0;
   margin-top: 16px;
 }
 
 /* PAINEL DA SENHA FICA NO TOPO E OCUPA A LARGURA TOTAL */
 .display{
-  grid-column: 1 / -1; /* Ocupa da primeira até a última coluna */
-  grid-row: 1 / 2; /* Fica na primeira linha */
+  grid-column: 1 / -1; 
+  grid-row: 1 / 2; 
   display:flex;
   flex-direction:column;
   gap:16px;
   height: 100%;
-  min-height: 0; /* CORREÇÃO: Impede que o histórico empurre o layout para fora da tela */
+  min-height: 0; 
 }
 
 .display .now{font-size:clamp(24px,3vw,36px);color:var(--muted);font-weight:500;letter-spacing:.04em; flex-shrink: 0; text-align: center;}
@@ -67,7 +67,6 @@ header{display:flex;justify-content:space-between;align-items:center;gap:16px; f
   border-radius:24px;
   padding:18px;
   min-height: 0; 
-  /* Gradiente centralizado para o formato horizontal */
   background:radial-gradient(800px 300px at 50% -40%, rgba(96,165,250,0.2),transparent),linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.02));
   border:1px solid rgba(255,255,255,0.08);
 }
@@ -82,14 +81,12 @@ header{display:flex;justify-content:space-between;align-items:center;gap:16px; f
 }
 /* CONTROLES (INPUTS) NA DIREITA DA LINHA DE BAIXO */
 .controls:nth-of-type(2) {
-  grid-column: 2 / 3; /* O correto no CSS grid é 2 / 3 para ocupar a coluna 2 inteira */
+  grid-column: 2 / 3; 
   grid-row: 2 / 3;
   display: flex;
   flex-direction: row;
   gap: 8px;
-  
-  /* ESTAS DUAS LINHAS FAZEM A MÁGICA: */
-  align-self: start; /* Impede que a caixa estique na vertical (altura) */
+  align-self: start; 
 }
 
 .row{display:grid;grid-template-columns:1fr 2fr;gap:12px;}
@@ -98,7 +95,7 @@ label{font-size:14px;color:var(--muted);}
 input,select{width:100%;padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:#0b1221;color:var(--text);outline:none;font-size:14px;}
 input:focus,select:focus{border-color:var(--brand);box-shadow:0 0 0 4px rgba(96,165,250,0.15);}
 
-/* BOTÕES ORGANIZADOS EM 2 COLUNAS PARA ECONOMIZAR ALTURA */
+/* BOTÕES ORGANIZADOS EM 2 COLUNAS */
 .btns{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
 
 button{padding:10px 14px;border-radius:14px;border:1px solid rgba(255,255,255,0.1);background:#101827;color:var(--text);font-weight:600;cursor:pointer; font-size: 14px;}
@@ -114,7 +111,7 @@ footer { margin-top:16px; display:flex; justify-content:space-between; align-ite
 
 .banner {
   width: 600px; 
-  height: 100px; /* Ajuste aqui a altura ideal da logo */
+  height: 100px; 
   background-image: url('https://raw.githubusercontent.com/dividacm/senha/refs/heads/main/logo.png');
   background-size: contain; 
   background-repeat: no-repeat; 
@@ -123,23 +120,16 @@ footer { margin-top:16px; display:flex; justify-content:space-between; align-ite
 
 kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;border-radius:6px;font-size:12px;}
 
-/* LAYOUT ESPECÍFICO PARA O MODO PAINEL GIGANTE (CLIENTE) */
-.panel-only .controls{display:none !important;}
-.panel-only header .brand span{opacity:.6;}
-.panel-only .display{grid-column:1 / -1; grid-row: 1 / -1;}
-.panel-only .ticket .big{font-size:clamp(120px,18vw,180px);}
-
-/* HISTÓRICO - ROLAGEM INTERNA APENAS NO HISTÓRICO */
+/* HISTÓRICO - PADRÃO (CONTROLADOR) */
 .history-panel{display: flex;flex-direction: column;flex: 1;min-height: 0;margin-top:0px;}
 .history-header{font-size:20px;font-weight:600;color:var(--muted);margin-bottom:12px;padding-left:4px;}
 .history-list{display:flex;flex-direction:column;gap:8px;flex: 1;overflow-y:auto; }
 .history-item{background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;transition:all 0.2s;}
 .history-item.recent{border-color:rgba(96,165,250,0.3);background:linear-gradient(180deg,rgba(96,165,250,0.08),rgba(96,165,250,0.03));}
 .history-senha{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:0.02em;}
-.history-info{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
+.history-info{display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:right;}
 .history-guiche{font-size:14px;color:var(--muted);}
 .history-time{font-size:12px;color:#6b7280;}
-.panel-only .history-panel{display:flex !important;}
 
 .history-list::-webkit-scrollbar{width:8px;}
 .history-list::-webkit-scrollbar-track{background:rgba(255,255,255,0.02);border-radius:4px;}
@@ -153,6 +143,55 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
 .ticket .big.flash, .panel-only .ticket .big.flash {animation: flash 0.6s ease-in-out;}
 .setor-badge{display:inline-block;padding:6px 12px;background:var(--brand);color:#0f172a;border-radius:8px;font-weight:500;font-size:14px;margin-left:8px;}
 
+/* ========================================================
+   LAYOUT ESPECÍFICO PARA O MODO PAINEL GIGANTE (TV 32") 
+   ======================================================== */
+.panel-only .controls { display:none !important; }
+.panel-only header .brand span { font-size: 1.5rem; opacity: .8; }
+.panel-only #status { display: none; } /* Oculta status na TV */
+
+/* Redesenho da Grid principal para TV: 2 Colunas Lado a Lado */
+.panel-only .grid { display: flex; flex-direction: column; height: 100%; margin-top: 10px; }
+.panel-only .display {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Esquerda muito maior para a senha, direita para histórico */
+    grid-template-rows: auto 1fr;
+    gap: 40px;
+    height: 100%;
+}
+
+.panel-only .now {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+    font-size: clamp(30px, 4vw, 50px);
+    text-align: center; /* Alinha o texto "Em atendimento" ao centro */
+    padding-left: 0;    /* Remove o recuo lateral esquerdo antigo */
+    margin-top: 20px;   /* Adiciona espaçamento superior para equilíbrio */
+}
+
+.panel-only .ticket {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+    margin: 0 40px 40px 40px; /* Aplica margens iguais nas laterais para centralizar a caixa */
+    text-align: center;       /* Garante que o número e o guichê fiquem perfeitamente centralizados */
+}
+
+.panel-only .ticket .big { font-size: clamp(150px, 16vw, 250px); }
+.panel-only .ticket .guiche { font-size: clamp(35px, 3.5vw, 60px); color: var(--accent); font-weight: 600; margin-top: 20px;}
+
+.panel-only .history-panel {
+    display: flex !important;
+    grid-column: 2 / 3;
+    grid-row: 1 / 3;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+    border-left: 2px solid rgba(255,255,255,0.05);
+    padding: 0 0 0 30px;
+    margin: 0;
+}
+.panel-only .history-header { font-size: 28px; margin-bottom: 24px; color: var(--text); opacity: 0.8;}
+.panel-only .history-senha { font-size: 40px; }
+.panel-only .history-guiche { font-size: 18px; color: var(--text); opacity: 0.9;}
+
 /* OVERLAY PARA DESBLOQUEAR ÁUDIO NO PAINEL */
 #unlock-overlay {
   position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -163,12 +202,15 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
 #unlock-overlay svg { width: 80px; height: 80px; color: var(--brand); margin-bottom: 20px; animation: pulse 2s infinite; }
 @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
-/* MODO MOBILE (Caso seja aberto no celular) */
 @media(max-width:900px){
-  html,body{overflow-y: auto;} /* Devolve a rolagem para o celular */
+  html,body{overflow-y: auto;} 
   .grid{grid-template-columns:1fr; grid-template-rows: auto;}
   .display, .controls:nth-of-type(1), .controls:nth-of-type(2) { grid-column:auto; grid-row: auto; }
-  .btns{grid-template-columns:repeat(2,1fr);} /* Volta os botões para 2 colunas no celular por falta de espaço */
+  .btns{grid-template-columns:repeat(2,1fr);} 
+  
+  /* Desativa painel lateral no mobile se a TV for aberta em tela pequena */
+  .panel-only .display { grid-template-columns: 1fr; }
+  .panel-only .history-panel { grid-column: 1 / 2; grid-row: auto; border-left: none; padding-left: 0;}
 }
 </style>
 </head>
@@ -177,7 +219,7 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
 <div id="unlock-overlay">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
   <h1 style="font-size: 2.5rem; margin:0;">Clique na tela para ativar o Painel</h1>
-  <p style="color: var(--muted); font-size: 1.2rem;">O navegador exige um clique inicial para liberar a voz.</p>
+  <p style="color: var(--muted); font-size: 1.2rem;">O navegador exige um clique inicial para libertar a voz.</p>
 </div>
 
 <div class="container">
@@ -220,28 +262,14 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
 </aside>
 
 <aside class="controls"> 
- <div class="card" style="display:flex;flex-direction:column;gap:12px;">
+ <div class="card" style="display:flex;flex-direction:column;gap:12px; flex: 1;">
   <div class="field">
     <label for="prefixSelect">Setor / Prefixo</label>
     <select id="prefixSelect">
-      <option value="A">Setor A - Atendimento Geral</option>
-      <option value="B">Setor B - Boletos</option>
-      <option value="C">Setor C - Certidões</option>
-      <option value="D">Setor D - Documentação</option>
+      
       <option value="E">Setor E - Protocolo</option>
-      <option value="F">Setor F - Fiscalização</option>
-      <option value="G">Setor G - Gerência</option>
-      <option value="H">Setor H - Habite-se</option>
-      <option value="I">Setor I - IPTU</option>
-      <option value="J" selected>Setor J - Divida Ativa</option>
-      <option value="K">Setor K - Cadastro</option>
-      <option value="L">Setor L - Licenças</option>
-      <option value="M">Setor M - Multas</option>
-      <option value="N">Setor N - Notificações</option>
-      <option value="P">Setor P - Parcelamento</option>
-      <option value="R">Setor R - Reclamações</option>
-      <option value="S">Setor S - Sênior</option>
-      <option value="T">Setor T - Tributário</option>
+      <option value="J" selected> J - Divida Ativa</option>
+     
     </select>
   </div>
   
@@ -270,27 +298,29 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
 import { getDatabase, ref, onValue, runTransaction, get } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
-// Config Firebase
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyDPcPaWLF4dxQ_091qiru1w9HXS05rtcz8",
-  authDomain: "fila-atendimento.firebaseapp.com",
-  databaseURL: "https://fila-atendimento-default-rtdb.firebaseio.com",
-  projectId: "fila-atendimento",
-  storageBucket: "fila-atendimento.firebasestorage.app",
-  messagingSenderId: "813517035677",
-  appId: "1:813517035677:web:caa3fedeac9719ff009c74"
+  apiKey: "AIzaSyCzuEqwPKGBBF_zHrsM1cxb5bvtA3wEylI",
+  authDomain: "senhaatend.firebaseapp.com",
+  databaseURL: "https://senhaatend-default-rtdb.firebaseio.com",
+  projectId: "senhaatend",
+  storageBucket: "senhaatend.firebasestorage.app",
+  messagingSenderId: "466367281822",
+  appId: "1:466367281822:web:6a5f46614312c33e1fd98f",
+  measurementId: "G-EMTNPBVN82"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Estado local
-let currentPrefix = "J"; // Prefixo atualmente selecionado
+let currentPrefix = "J"; 
 let state = {number:0, guiche:"1", ts:Date.now()};
 let loaded = false;
 let currentListener = null;
-let historyListener = null;
-let history = []; // Histórico local de senhas
+let history = []; 
+
+const isPanel = new URL(location.href).searchParams.get('painel') === '1';
 
 const el = {
   senhaBig: document.getElementById("senhaBig"),
@@ -299,50 +329,36 @@ const el = {
   numero: document.getElementById("numero"),
   guiche: document.getElementById("guiche"),
   clock: document.getElementById("clock"),
-  setorBadge: document.getElementById("setorBadge"),
   historyList: document.getElementById("historyList"),
   controls: document.querySelectorAll('.controls')
 };
 
 const pad = n=>String(n).padStart(3,"0");
 
-// Mensagens personalizadas por setor
 const setorMessages = {
-  'A': 'Dirija-se ao Atendimento Geral',
-  'B': 'Dirija-se ao setor de Boletos',
-  'C': 'Dirija-se ao setor de Certidões',
-  'D': 'Dirija-se ao setor de Documentação',
   'E': 'Dirija-se ao Protocolo',
-  'F': 'Dirija-se ao setor de Fiscalização',
-  'G': 'Dirija-se à Gerência',
-  'H': 'Dirija-se ao setor de Habite-se',
-  'I': 'Dirija-se ao Protocolo',
-  'J': 'Dirija-se à Dívida Ativa',
-  'K': 'Dirija-se ao Cadastro',
-  'L': 'Dirija-se ao setor de Licenças',
-  'M': 'Dirija-se ao setor de Multas',
-  'N': 'Dirija-se ao setor de Notificações',
-  'P': 'Dirija-se ao Parcelamento',
-  'R': 'Dirija-se ao setor de Reclamações',
-  'S': 'Dirija-se ao Atendimento Sênior',
-  'T': 'Dirija-se ao setor Tributário'
+  'J': 'Dirija-se ao mezanino',
 };
 
-// Obter mensagem do setor
+// Formatação inteligente da mensagem para exibir e falar "Guichê"
 function getSetorMessage(prefix, guiche){
   const baseMessage = setorMessages[prefix] || 'Dirija-se ao atendimento';
-  return guiche ? `${baseMessage} - ${guiche}` : baseMessage;
+  if (!guiche) return baseMessage;
+  
+  // Evita redundância caso o utilizador já escreva "Guichê 1" no input
+  const textoGuiche = String(guiche).toLowerCase();
+  const prefixo = (textoGuiche.includes('guich') || textoGuiche.includes('mesa') || textoGuiche.includes('sala')) ? '' : 'Guichê ';
+  
+  return `${baseMessage}, ${prefixo}${guiche}`;
 }
 
-// Renderizar histórico de senhas
 function renderHistory(){
   if(!el.historyList) return;
-  
-  // Limitar a 10 últimas senhas
-  const recentHistory = history.slice(-10).reverse();
+  const numItems = isPanel ? 8 : 12; // Mostra menos itens na TV para evitar overflow devido ao tamanho da fonte
+  const recentHistory = history.slice(-numItems).reverse(); 
   
   el.historyList.innerHTML = recentHistory.map((item, index) => {
-    const isRecent = index === 0; // Primeira (mais recente)
+    const isRecent = index === 0; 
     const timeStr = new Date(item.ts).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
     const mensagem = getSetorMessage(item.prefix, item.guiche);
     
@@ -363,17 +379,14 @@ function updateDisplay(){
   el.guicheTxt.textContent=getSetorMessage(currentPrefix, state.guiche);
   el.numero.value=state.number;
   el.guiche.value=state.guiche;
-  if(el.setorBadge) el.setorBadge.textContent=`Setor ${currentPrefix}`;
 
   el.senhaBig.classList.remove('flash');
   void el.senhaBig.offsetWidth;
   el.senhaBig.classList.add('flash');
   
-  // Atualizar histórico visual
   renderHistory();
 }
 
-// 🔊 Falar senha e guichê com Web Speech API
 function anunciarSenha() {
   const senha = `${currentPrefix}-${pad(state.number)}`;
   const mensagem = getSetorMessage(currentPrefix, state.guiche);
@@ -386,10 +399,8 @@ function anunciarSenha() {
     (voz.name.includes('Maria') || voz.name.includes('Luciana') || voz.name.includes('Google') || voz.name.includes('Feminine'))
   );
 
-  if (vozFeminina) {
-    msg.voice = vozFeminina;
-  }
-
+  if (vozFeminina) msg.voice = vozFeminina;
+  
   msg.lang = "pt-BR";
   msg.rate = 1;
   msg.pitch = 1;
@@ -399,87 +410,47 @@ function anunciarSenha() {
   window.speechSynthesis.speak(msg);
 }
 
-// Obter referência do Firebase para o prefixo atual
 function getStateRef(){
   return ref(db, `fila/setores/${currentPrefix}`);
 }
 
-// Obter referência do histórico no Firebase
-function getHistoryRef(){
-  return ref(db, `fila/historico/${currentPrefix}`);
-}
+// ==========================================
+// FUNÇÕES DO PAINEL GLOBAL
+// ==========================================
 
-// --- FUNÇÕES SEGURAS DE FILA E HISTÓRICO ---
+function dispararPainelGlobal(prefix, number, guiche, ts) {
+  const globalStateRef = ref(db, 'fila/global/estado');
+  runTransaction(globalStateRef, () => {
+     return { prefix, number, guiche, ts };
+  });
 
-function salvarHistorico(numero, guiche, timestamp) {
-  const historyRef = getHistoryRef();
-  const historyEntry = {
-    prefix: currentPrefix,
-    number: numero,
-    guiche: guiche,
-    ts: timestamp
-  };
-
-  runTransaction(historyRef, (currentData) => {
-    let historyData = currentData || [];
-    if(!Array.isArray(historyData)) historyData = [];
-
-    historyData.push(historyEntry);
-
-    if(historyData.length > 50){
-      historyData = historyData.slice(-50);
-    }
-    return historyData;
+  const globalHistoryRef = ref(db, 'fila/global/historico');
+  runTransaction(globalHistoryRef, (currentData) => {
+     let historyData = currentData || [];
+     if(!Array.isArray(historyData)) historyData = [];
+     
+     historyData.push({ prefix, number, guiche, ts });
+     
+     if(historyData.length > 30){ historyData = historyData.slice(-30); }
+     return historyData;
   });
 }
 
-function broadcast(){
-  if(!loaded) return;
-  state.ts = Date.now();
-  
-  runTransaction(getStateRef(), current=>{
-    if(!current || current.ts <= state.ts){
-      return {...state};
-    }
-    return undefined;
-  });
-  
-  salvarHistorico(state.number, state.guiche, state.ts);
-}
-
-// Carregar estado de um prefixo específico
 function loadPrefix(prefix){
   currentPrefix = prefix;
   loaded = false;
   
   if(currentListener){ currentListener(); }
-  if(historyListener){ historyListener(); }
   
   const stateRef = getStateRef();
-  const historyRef = getHistoryRef();
   
   currentListener = onValue(stateRef, snapshot => {
     if(snapshot.exists()){
       const remote = snapshot.val();
-      if(remote.ts > state.ts){
+      if(remote.ts > state.ts){ 
         Object.assign(state, remote);
         updateDisplay();
-        anunciarSenha();
       }
-    }
-  });
-  
-  historyListener = onValue(historyRef, snapshot => {
-    if(snapshot.exists()){
-      const historyData = snapshot.val();
-      if(Array.isArray(historyData)){
-        history = historyData;
-        renderHistory();
-      }
-    } else {
-        // Se o histórico não existir (ex: foi apagado), zera a tela local
-        history = [];
-        renderHistory();
     }
   });
   
@@ -487,142 +458,168 @@ function loadPrefix(prefix){
     if(snapshot.exists()){
       state = snapshot.val();
     } else {
-      state = {number:0, guiche:"1", ts:Date.now()};
+      state = {number:0, guiche: el.guiche.value, ts:Date.now()};
     }
     updateDisplay();
     loaded = true;
   });
-  
-  get(historyRef).then(snapshot => {
-    if(snapshot.exists()){
-      const historyData = snapshot.val();
-      if(Array.isArray(historyData)){
-        history = historyData;
-        renderHistory();
-      }
-    }
-  });
 }
 
-// --- AÇÕES PRINCIPAIS ---
+// ==========================================
+// AÇÕES DO CONTROLADOR
+// ==========================================
 
 function next(){ 
   if(!loaded) return;
-
-  const stateRef = getStateRef();
-  const meuGuiche = el.guiche.value;
   const novoTs = Date.now();
-
   state.ts = novoTs;
+  const meuGuiche = el.guiche.value;
 
-  runTransaction(stateRef, (current) => {
+  runTransaction(getStateRef(), (current) => {
     let proximoNumero = 1;
-    if (current && typeof current.number === 'number') {
-      proximoNumero = current.number + 1; 
-    }
-    return {
-      number: proximoNumero,
-      guiche: meuGuiche,
-      ts: novoTs
-    };
+    if (current && typeof current.number === 'number') { proximoNumero = current.number + 1; }
+    return { number: proximoNumero, guiche: meuGuiche, ts: novoTs };
   }).then((result) => {
     if (result.committed) {
       const confirmedState = result.snapshot.val();
       state.number = confirmedState.number;
       state.guiche = confirmedState.guiche;
-
+      
       updateDisplay();
-      anunciarSenha();
-      salvarHistorico(confirmedState.number, confirmedState.guiche, confirmedState.ts);
+      anunciarSenha(); 
+      dispararPainelGlobal(currentPrefix, confirmedState.number, confirmedState.guiche, confirmedState.ts);
     }
   });
 }
 
 function back(){ 
-  state.number=Math.max(0,state.number-1); 
-  broadcast(); 
-  updateDisplay(); 
-  anunciarSenha();
-}
-
-// NOVO RESET: Zera a senha e limpa o histórico no Banco de Dados
-function resetToZero(){ 
+  if(!loaded) return;
   const novoTs = Date.now();
-  
-  // 1. Zera a senha atual no Firebase
-  runTransaction(getStateRef(), () => {
-    return {
-      number: 0,
-      guiche: el.guiche.value,
-      ts: novoTs
-    };
-  }).then(() => {
-    state.number = 0;
-    state.ts = novoTs;
-    updateDisplay();
-  });
+  state.ts = novoTs;
+  const meuGuiche = el.guiche.value;
 
-  // 2. Apaga definitivamente o histórico no Firebase
-  runTransaction(getHistoryRef(), () => {
-    return []; // Substitui os dados por uma lista vazia
-  }).then(() => {
-    history = [];
-    renderHistory();
+  runTransaction(getStateRef(), (current) => {
+    let novoNumero = 0;
+    if (current && typeof current.number === 'number') { novoNumero = Math.max(0, current.number - 1); }
+    return { number: novoNumero, guiche: meuGuiche, ts: novoTs };
+  }).then((result) => {
+    if (result.committed) {
+      const confirmedState = result.snapshot.val();
+      state.number = confirmedState.number;
+      state.guiche = confirmedState.guiche;
+      
+      updateDisplay();
+      anunciarSenha();
+      dispararPainelGlobal(currentPrefix, confirmedState.number, confirmedState.guiche, confirmedState.ts);
+    }
   });
 }
 
-// Eventos UI
+// ==========================================
+// EVENTOS DOS BOTÕES E INPUTS
+// ==========================================
+
 el.prefixSelect.addEventListener('change',()=>{ loadPrefix(el.prefixSelect.value); });
-el.numero.addEventListener('change',()=>{ state.number=parseInt(el.numero.value||0); broadcast(); updateDisplay(); });
-el.guiche.addEventListener('input',()=>{ state.guiche=el.guiche.value; broadcast(); updateDisplay(); });
+
+el.numero.addEventListener('change',()=>{
+  state.number=parseInt(el.numero.value||0); 
+  const novoTs = Date.now();
+  state.ts = novoTs;
+  
+  runTransaction(getStateRef(), () => { return { number: state.number, guiche: state.guiche, ts: novoTs }; });
+  updateDisplay();
+  dispararPainelGlobal(currentPrefix, state.number, state.guiche, novoTs);
+});
+
+el.guiche.addEventListener('input',()=>{
+  state.guiche=el.guiche.value; 
+  const novoTs = Date.now();
+  state.ts = novoTs;
+  
+  runTransaction(getStateRef(), () => { return { number: state.number, guiche: state.guiche, ts: novoTs }; });
+  updateDisplay();
+});
 
 document.getElementById("btnNext").addEventListener('click',next);
 document.getElementById("btnBack").addEventListener('click',back);
-document.getElementById("btnRepeat").addEventListener('click',()=>anunciarSenha());
-document.getElementById("btnReset").addEventListener('click',()=>{
-    state.number=0; broadcast(); updateDisplay(); anunciarSenha();
+
+document.getElementById("btnRepeat").addEventListener('click',()=>{
+  const novoTs = Date.now();
+  state.ts = novoTs;
+  dispararPainelGlobal(currentPrefix, state.number, state.guiche, novoTs);
+  anunciarSenha();
 });
 
-// Botão ZERAR CONTADOR e APAGAR HISTÓRICO
+document.getElementById("btnReset").addEventListener('click',()=>{
+  const novoTs = Date.now();
+  state.ts = novoTs;
+  runTransaction(getStateRef(), () => { return { number: 0, guiche: state.guiche, ts: novoTs }; })
+  .then(() => {
+     state.number = 0;
+     updateDisplay();
+     dispararPainelGlobal(currentPrefix, 0, state.guiche, novoTs);
+     anunciarSenha();
+  });
+});
+
 document.getElementById("btnClear").addEventListener('click',()=>{
-  if(confirm(`Tem a certeza que deseja ZERAR o contador e APAGAR TODO O HISTÓRICO do Setor ${currentPrefix}?`)) {
-      resetToZero(); 
+  if(confirm(`Tem a certeza que deseja ZERAR o contador da sala ${currentPrefix} e APAGAR O HISTÓRICO GLOBAL do Painel?`)) {
+      const novoTs = Date.now();
+      
+      runTransaction(getStateRef(), () => { return { number: 0, guiche: el.guiche.value, ts: novoTs }; })
+      .then(() => {
+          state.number = 0;
+          state.ts = novoTs;
+          updateDisplay();
+          dispararPainelGlobal(currentPrefix, 0, el.guiche.value, novoTs);
+      });
+      
+      runTransaction(ref(db, 'fila/global/historico'), () => []); 
   }
 });
 
 document.getElementById("btnPainel").addEventListener('click',()=>{
   const url = new URL(location.href); 
   url.searchParams.set("painel","1");
-  url.searchParams.set("setor", currentPrefix);
   window.open(url.toString(), "_blank");
 });
 
-// Teclado
 window.addEventListener('keydown',e=>{
   if(['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName)) return;
   if(e.key.toLowerCase()==='n') next();
-  else if(e.key.toLowerCase()==='r') anunciarSenha();
+  else if(e.key.toLowerCase()==='r') {
+    const novoTs = Date.now();
+    dispararPainelGlobal(currentPrefix, state.number, state.guiche, novoTs);
+    anunciarSenha();
+  }
   else if(e.key.toLowerCase()==='b') back();
-  else if(e.key==='0') resetToZero();
 });
 
-// Relógio
 setInterval(()=>{ 
   const d=new Date(); 
   el.clock.textContent=d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); 
 },1000);
 
-// Inicialização painel
+// ==========================================
+// INICIALIZAÇÃO E LÓGICA DO PAINEL
+// ==========================================
+
 function initPanelMode(){ 
-  const urlParams = new URL(location.href).searchParams;
-  const isPanel = urlParams.get('painel') === '1';
-  const setorParam = urlParams.get('setor');
-  
+  const globalHistoryRef = ref(db, 'fila/global/historico');
+  onValue(globalHistoryRef, snapshot => {
+    if(snapshot.exists()){
+      history = snapshot.val() || [];
+      renderHistory();
+    } else {
+      history = [];
+      renderHistory();
+    }
+  });
+
   if(isPanel){ 
     document.body.classList.add("panel-only"); 
     el.controls.forEach(ctrl => ctrl.style.display="none");
     
-    // EXIBE A TELA DE DESBLOQUEIO DE ÁUDIO NO MODO PAINEL
     const overlay = document.getElementById('unlock-overlay');
     overlay.style.display = 'flex';
     overlay.addEventListener('click', () => {
@@ -631,13 +628,35 @@ function initPanelMode(){
         overlay.style.display = 'none'; 
     });
     
-    if(setorParam){
-      currentPrefix = setorParam;
-      el.prefixSelect.value = setorParam;
-    }
+    const globalStateRef = ref(db, 'fila/global/estado');
+    onValue(globalStateRef, snapshot => {
+      if(snapshot.exists()){
+        const remote = snapshot.val();
+        if(remote.ts > state.ts){ 
+          currentPrefix = remote.prefix;
+          state.number = remote.number;
+          state.guiche = remote.guiche;
+          state.ts = remote.ts;
+          updateDisplay();
+          anunciarSenha();
+        }
+      }
+    });
+    
+    get(globalStateRef).then(snapshot=>{
+       if(snapshot.exists()){
+           const remote = snapshot.val();
+           currentPrefix = remote.prefix;
+           state.number = remote.number;
+           state.guiche = remote.guiche;
+           state.ts = remote.ts;
+           updateDisplay();
+       }
+    });
+
+  } else {
+    loadPrefix(currentPrefix);
   }
-  
-  loadPrefix(currentPrefix);
 }
 
 initPanelMode();
