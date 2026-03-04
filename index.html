@@ -46,13 +46,13 @@ header{display:flex;justify-content:space-between;align-items:center;gap:16px; f
 
 /* PAINEL DA SENHA FICA NO TOPO E OCUPA A LARGURA TOTAL */
 .display{
-  grid-column: 1 / -1; 
-  grid-row: 1 / 2; 
+  grid-column: 1 / -1; /* Ocupa da primeira até a última coluna */
+  grid-row: 1 / 2; /* Fica na primeira linha */
   display:flex;
   flex-direction:column;
   gap:16px;
   height: 100%;
-  min-height: 0; /* <--- ADICIONE ESTA LINHA MÁGICA */
+  min-height: 0; /* CORREÇÃO: Impede que o histórico empurre o layout para fora da tela */
 }
 
 .display .now{font-size:clamp(24px,3vw,36px);color:var(--muted);font-weight:500;letter-spacing:.04em; flex-shrink: 0; text-align: center;}
@@ -90,7 +90,6 @@ header{display:flex;justify-content:space-between;align-items:center;gap:16px; f
   
   /* ESTAS DUAS LINHAS FAZEM A MÁGICA: */
   align-self: start; /* Impede que a caixa estique na vertical (altura) */
-  /* justify-self: start; /* Descomente esta linha se quiser impedir que estique na horizontal (largura) também */
 }
 
 .row{display:grid;grid-template-columns:1fr 2fr;gap:12px;}
@@ -114,8 +113,8 @@ button:disabled{opacity:0.5;cursor:not-allowed;}
 footer { margin-top:16px; display:flex; justify-content:space-between; align-items:center; color:var(--muted); font-size:13px; flex-shrink: 0; }
 
 .banner {
-  width: 600px; /* Aumentei um pouco a largura máxima */
-  height: 150px; /* AUMENTAMOS A ALTURA (Era 60px) - É isto que vai fazer a logo crescer! */
+  width: 600px; 
+  height: 100px; /* Ajuste aqui a altura ideal da logo */
   background-image: url('https://raw.githubusercontent.com/dividacm/senha/refs/heads/main/logo.png');
   background-size: contain; 
   background-repeat: no-repeat; 
@@ -136,7 +135,7 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
 .history-list{display:flex;flex-direction:column;gap:8px;flex: 1;overflow-y:auto; }
 .history-item{background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;transition:all 0.2s;}
 .history-item.recent{border-color:rgba(96,165,250,0.3);background:linear-gradient(180deg,rgba(96,165,250,0.08),rgba(96,165,250,0.03));}
-.history-senha{font-size:28px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:0.02em;}
+.history-senha{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:0.02em;}
 .history-info{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
 .history-guiche{font-size:14px;color:var(--muted);}
 .history-time{font-size:12px;color:#6b7280;}
@@ -221,14 +220,28 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
 </aside>
 
 <aside class="controls"> 
- <div class="card" style="display:flex;flex-direction:column;gap:12px; flex: 1;">
+ <div class="card" style="display:flex;flex-direction:column;gap:12px;">
   <div class="field">
     <label for="prefixSelect">Setor / Prefixo</label>
     <select id="prefixSelect">
-      
-      <option value="E">Setor E - Protocolo</option>
-      <option value="J" selected>Setor J - Divida Ativa</option>
-
+      <option value="A">Setor A - Atendimento Geral</option>
+      <option value="B">Setor B - Boletos</option>
+      <option value="C">Setor C - Certidões</option>
+      <option value="D">Setor D - Documentação</option>
+      <option value="E">Setor E - Especial</option>
+      <option value="F">Setor F - Fiscalização</option>
+      <option value="G">Setor G - Gerência</option>
+      <option value="H">Setor H - Habite-se</option>
+      <option value="I">Setor I - IPTU</option>
+      <option value="J" selected>Setor J - Judicial</option>
+      <option value="K">Setor K - Cadastro</option>
+      <option value="L">Setor L - Licenças</option>
+      <option value="M">Setor M - Multas</option>
+      <option value="N">Setor N - Notificações</option>
+      <option value="P">Setor P - Parcelamento</option>
+      <option value="R">Setor R - Reclamações</option>
+      <option value="S">Setor S - Sênior</option>
+      <option value="T">Setor T - Tributário</option>
     </select>
   </div>
   
@@ -295,10 +308,24 @@ const pad = n=>String(n).padStart(3,"0");
 
 // Mensagens personalizadas por setor
 const setorMessages = {
-  
-  'E': 'Dirija-se ao Protocolo',
-  'J': 'Suba ao mezanino da Dívida Ativa',
-  
+  'A': 'Dirija-se ao Atendimento Geral',
+  'B': 'Dirija-se ao setor de Boletos',
+  'C': 'Dirija-se ao setor de Certidões',
+  'D': 'Dirija-se ao setor de Documentação',
+  'E': 'Dirija-se ao Atendimento Especial',
+  'F': 'Dirija-se ao setor de Fiscalização',
+  'G': 'Dirija-se à Gerência',
+  'H': 'Dirija-se ao setor de Habite-se',
+  'I': 'Dirija-se ao Protocolo',
+  'J': 'Dirija-se à Dívida Ativa',
+  'K': 'Dirija-se ao Cadastro',
+  'L': 'Dirija-se ao setor de Licenças',
+  'M': 'Dirija-se ao setor de Multas',
+  'N': 'Dirija-se ao setor de Notificações',
+  'P': 'Dirija-se ao Parcelamento',
+  'R': 'Dirija-se ao setor de Reclamações',
+  'S': 'Dirija-se ao Atendimento Sênior',
+  'T': 'Dirija-se ao setor Tributário'
 };
 
 // Obter mensagem do setor
@@ -382,12 +409,34 @@ function getHistoryRef(){
   return ref(db, `fila/historico/${currentPrefix}`);
 }
 
-// Atualizar estado no Firebase
+// --- FUNÇÕES SEGURAS DE FILA E HISTÓRICO ---
+
+function salvarHistorico(numero, guiche, timestamp) {
+  const historyRef = getHistoryRef();
+  const historyEntry = {
+    prefix: currentPrefix,
+    number: numero,
+    guiche: guiche,
+    ts: timestamp
+  };
+
+  runTransaction(historyRef, (currentData) => {
+    let historyData = currentData || [];
+    if(!Array.isArray(historyData)) historyData = [];
+
+    historyData.push(historyEntry);
+
+    if(historyData.length > 50){
+      historyData = historyData.slice(-50);
+    }
+    return historyData;
+  });
+}
+
 function broadcast(){
   if(!loaded) return;
   state.ts = Date.now();
   
-  // Atualizar estado atual
   runTransaction(getStateRef(), current=>{
     if(!current || current.ts <= state.ts){
       return {...state};
@@ -395,30 +444,7 @@ function broadcast(){
     return undefined;
   });
   
-  // Adicionar ao histórico
-  const historyRef = getHistoryRef();
-  const historyEntry = {
-    prefix: currentPrefix,
-    number: state.number,
-    guiche: state.guiche,
-    ts: state.ts
-  };
-  
-  get(historyRef).then(snapshot => {
-    let historyData = snapshot.exists() ? snapshot.val() : [];
-    if(!Array.isArray(historyData)) historyData = [];
-    
-    // Adicionar nova entrada
-    historyData.push(historyEntry);
-    
-    // Manter apenas as últimas 50 entradas
-    if(historyData.length > 50){
-      historyData = historyData.slice(-50);
-    }
-    
-    // Salvar histórico atualizado
-    runTransaction(historyRef, () => historyData);
-  });
+  salvarHistorico(state.number, state.guiche, state.ts);
 }
 
 // Carregar estado de um prefixo específico
@@ -426,18 +452,12 @@ function loadPrefix(prefix){
   currentPrefix = prefix;
   loaded = false;
   
-  // Remover listeners anteriores se existirem
-  if(currentListener){
-    currentListener();
-  }
-  if(historyListener){
-    historyListener();
-  }
+  if(currentListener){ currentListener(); }
+  if(historyListener){ historyListener(); }
   
   const stateRef = getStateRef();
   const historyRef = getHistoryRef();
   
-  // Configurar listener do estado atual
   currentListener = onValue(stateRef, snapshot => {
     if(snapshot.exists()){
       const remote = snapshot.val();
@@ -449,7 +469,6 @@ function loadPrefix(prefix){
     }
   });
   
-  // Configurar listener do histórico
   historyListener = onValue(historyRef, snapshot => {
     if(snapshot.exists()){
       const historyData = snapshot.val();
@@ -457,22 +476,23 @@ function loadPrefix(prefix){
         history = historyData;
         renderHistory();
       }
+    } else {
+        // Se o histórico não existir (ex: foi apagado), zera a tela local
+        history = [];
+        renderHistory();
     }
   });
   
-  // Carregar estado inicial
   get(stateRef).then(snapshot=>{
     if(snapshot.exists()){
       state = snapshot.val();
     } else {
-      // Se não existe, inicializa com valores padrão
       state = {number:0, guiche:"1", ts:Date.now()};
     }
     updateDisplay();
     loaded = true;
   });
   
-  // Carregar histórico inicial
   get(historyRef).then(snapshot => {
     if(snapshot.exists()){
       const historyData = snapshot.val();
@@ -484,12 +504,38 @@ function loadPrefix(prefix){
   });
 }
 
-// Ações
+// --- AÇÕES PRINCIPAIS ---
+
 function next(){ 
-  state.number++; 
-  broadcast(); 
-  updateDisplay(); 
-  anunciarSenha();
+  if(!loaded) return;
+
+  const stateRef = getStateRef();
+  const meuGuiche = el.guiche.value;
+  const novoTs = Date.now();
+
+  state.ts = novoTs;
+
+  runTransaction(stateRef, (current) => {
+    let proximoNumero = 1;
+    if (current && typeof current.number === 'number') {
+      proximoNumero = current.number + 1; 
+    }
+    return {
+      number: proximoNumero,
+      guiche: meuGuiche,
+      ts: novoTs
+    };
+  }).then((result) => {
+    if (result.committed) {
+      const confirmedState = result.snapshot.val();
+      state.number = confirmedState.number;
+      state.guiche = confirmedState.guiche;
+
+      updateDisplay();
+      anunciarSenha();
+      salvarHistorico(confirmedState.number, confirmedState.guiche, confirmedState.ts);
+    }
+  });
 }
 
 function back(){ 
@@ -499,36 +545,51 @@ function back(){
   anunciarSenha();
 }
 
+// NOVO RESET: Zera a senha e limpa o histórico no Banco de Dados
 function resetToZero(){ 
-  state.number=0; 
-  broadcast(); 
-  updateDisplay();
+  const novoTs = Date.now();
+  
+  // 1. Zera a senha atual no Firebase
+  runTransaction(getStateRef(), () => {
+    return {
+      number: 0,
+      guiche: el.guiche.value,
+      ts: novoTs
+    };
+  }).then(() => {
+    state.number = 0;
+    state.ts = novoTs;
+    updateDisplay();
+  });
+
+  // 2. Apaga definitivamente o histórico no Firebase
+  runTransaction(getHistoryRef(), () => {
+    return []; // Substitui os dados por uma lista vazia
+  }).then(() => {
+    history = [];
+    renderHistory();
+  });
 }
 
 // Eventos UI
-el.prefixSelect.addEventListener('change',()=>{
-  loadPrefix(el.prefixSelect.value);
-});
-
-el.numero.addEventListener('change',()=>{
-  state.number=parseInt(el.numero.value||0); 
-  broadcast(); 
-  updateDisplay();
-});
-
-el.guiche.addEventListener('input',()=>{
-  state.guiche=el.guiche.value; 
-  broadcast(); 
-  updateDisplay();
-});
+el.prefixSelect.addEventListener('change',()=>{ loadPrefix(el.prefixSelect.value); });
+el.numero.addEventListener('change',()=>{ state.number=parseInt(el.numero.value||0); broadcast(); updateDisplay(); });
+el.guiche.addEventListener('input',()=>{ state.guiche=el.guiche.value; broadcast(); updateDisplay(); });
 
 document.getElementById("btnNext").addEventListener('click',next);
 document.getElementById("btnBack").addEventListener('click',back);
 document.getElementById("btnRepeat").addEventListener('click',()=>anunciarSenha());
-document.getElementById("btnReset").addEventListener('click',()=>{resetToZero(); anunciarSenha();});
-document.getElementById("btnClear").addEventListener('click',()=>{
-  if(confirm(`Zerar contador do Setor ${currentPrefix} para 0?`)) resetToZero();
+document.getElementById("btnReset").addEventListener('click',()=>{
+    state.number=0; broadcast(); updateDisplay(); anunciarSenha();
 });
+
+// Botão ZERAR CONTADOR e APAGAR HISTÓRICO
+document.getElementById("btnClear").addEventListener('click',()=>{
+  if(confirm(`Tem a certeza que deseja ZERAR o contador e APAGAR TODO O HISTÓRICO do Setor ${currentPrefix}?`)) {
+      resetToZero(); 
+  }
+});
+
 document.getElementById("btnPainel").addEventListener('click',()=>{
   const url = new URL(location.href); 
   url.searchParams.set("painel","1");
@@ -565,20 +626,17 @@ function initPanelMode(){
     const overlay = document.getElementById('unlock-overlay');
     overlay.style.display = 'flex';
     overlay.addEventListener('click', () => {
-        // Envia uma voz muda apenas para o navegador aprovar o uso da fala
         const silentMsg = new SpeechSynthesisUtterance('');
         window.speechSynthesis.speak(silentMsg);
-        overlay.style.display = 'none'; // Esconde a tela e mostra o painel
+        overlay.style.display = 'none'; 
     });
     
-    // Se veio com parâmetro de setor, carregar esse setor
     if(setorParam){
       currentPrefix = setorParam;
       el.prefixSelect.value = setorParam;
     }
   }
   
-  // Carregar o prefixo inicial
   loadPrefix(currentPrefix);
 }
 
