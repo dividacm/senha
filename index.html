@@ -148,13 +148,12 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
    ======================================================== */
 .panel-only .controls { display:none !important; }
 .panel-only header .brand span { font-size: 1.5rem; opacity: .8; }
-.panel-only #status { display: none; } /* Oculta status na TV */
+.panel-only #status { display: none; } 
 
-/* Redesenho da Grid principal para TV: 2 Colunas Lado a Lado */
 .panel-only .grid { display: flex; flex-direction: column; height: 100%; margin-top: 10px; }
 .panel-only .display {
     display: grid;
-    grid-template-columns: 2fr 1fr; /* Esquerda muito maior para a senha, direita para histórico */
+    grid-template-columns: 2fr 1fr; 
     grid-template-rows: auto 1fr;
     gap: 40px;
     height: 100%;
@@ -164,18 +163,17 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
     grid-column: 1 / 2;
     grid-row: 1 / 2;
     font-size: clamp(30px, 4vw, 50px);
-    text-align: center; /* Alinha o texto "Em atendimento" ao centro */
-    padding-left: 0;    /* Remove o recuo lateral esquerdo antigo */
-    margin-top: 20px;   /* Adiciona espaçamento superior para equilíbrio */
+    text-align: center; 
+    padding-left: 0;    
+    margin-top: 20px;   
 }
 
 .panel-only .ticket {
     grid-column: 1 / 2;
     grid-row: 2 / 3;
-    margin: 0 40px 40px 40px; /* Aplica margens iguais nas laterais para centralizar a caixa */
-    text-align: center;       /* Garante que o número e o guichê fiquem perfeitamente centralizados */
+    margin: 0 40px 40px 40px; 
+    text-align: center;       
 }
-
 .panel-only .ticket .big { font-size: clamp(150px, 16vw, 250px); }
 .panel-only .ticket .guiche { font-size: clamp(35px, 3.5vw, 60px); color: var(--accent); font-weight: 600; margin-top: 20px;}
 
@@ -208,7 +206,6 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
   .display, .controls:nth-of-type(1), .controls:nth-of-type(2) { grid-column:auto; grid-row: auto; }
   .btns{grid-template-columns:repeat(2,1fr);} 
   
-  /* Desativa painel lateral no mobile se a TV for aberta em tela pequena */
   .panel-only .display { grid-template-columns: 1fr; }
   .panel-only .history-panel { grid-column: 1 / 2; grid-row: auto; border-left: none; padding-left: 0;}
 }
@@ -266,10 +263,24 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
   <div class="field">
     <label for="prefixSelect">Setor / Prefixo</label>
     <select id="prefixSelect">
-      
-      <option value="E">Setor E - Protocolo</option>
-      <option value="J" selected> J - Divida Ativa</option>
-     
+      <option value="A">Setor A - Atendimento Geral</option>
+      <option value="B">Setor B - Boletos</option>
+      <option value="C">Setor C - Certidões</option>
+      <option value="D">Setor D - Documentação</option>
+      <option value="E">Setor E - Especial</option>
+      <option value="F">Setor F - Fiscalização</option>
+      <option value="G">Setor G - Gerência</option>
+      <option value="H">Setor H - Habite-se</option>
+      <option value="I">Setor I - IPTU</option>
+      <option value="J" selected>Setor J - Judicial</option>
+      <option value="K">Setor K - Cadastro</option>
+      <option value="L">Setor L - Licenças</option>
+      <option value="M">Setor M - Multas</option>
+      <option value="N">Setor N - Notificações</option>
+      <option value="P">Setor P - Parcelamento</option>
+      <option value="R">Setor R - Reclamações</option>
+      <option value="S">Setor S - Sênior</option>
+      <option value="T">Setor T - Tributário</option>
     </select>
   </div>
   
@@ -298,17 +309,15 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
 import { getDatabase, ref, onValue, runTransaction, get } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Config Firebase - Insira os dados do novo banco aqui se necessário
 const firebaseConfig = {
-  apiKey: "AIzaSyCzuEqwPKGBBF_zHrsM1cxb5bvtA3wEylI",
-  authDomain: "senhaatend.firebaseapp.com",
-  databaseURL: "https://senhaatend-default-rtdb.firebaseio.com",
-  projectId: "senhaatend",
-  storageBucket: "senhaatend.firebasestorage.app",
-  messagingSenderId: "466367281822",
-  appId: "1:466367281822:web:6a5f46614312c33e1fd98f",
-  measurementId: "G-EMTNPBVN82"
+  apiKey: "AIzaSyDPcPaWLF4dxQ_091qiru1w9HXS05rtcz8",
+  authDomain: "fila-atendimento.firebaseapp.com",
+  databaseURL: "https://fila-atendimento-default-rtdb.firebaseio.com",
+  projectId: "fila-atendimento",
+  storageBucket: "fila-atendimento.firebasestorage.app",
+  messagingSenderId: "813517035677",
+  appId: "1:813517035677:web:caa3fedeac9719ff009c74"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -335,26 +344,30 @@ const el = {
 
 const pad = n=>String(n).padStart(3,"0");
 
-const setorMessages = {
-  'E': 'Dirija-se ao Protocolo',
-  'J': 'Dirija-se ao mezanino',
+// SANITIZAÇÃO (Mitigação de XSS)
+const sanitize = (str) => {
+  if (!str) return '';
+  return String(str).replace(/[&<>"'`=\/]/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '/': '&#x2F;', '`': '&#x60;', '=': '&#x3D;' }[s]));
 };
 
-// Formatação inteligente da mensagem para exibir e falar "Guichê"
+const setorMessages = {
+  'E': 'Dirija-se ao Protocolo',
+  'J': 'Dirija-se à Dívida Ativa no mezanino',
+};
+
 function getSetorMessage(prefix, guiche){
   const baseMessage = setorMessages[prefix] || 'Dirija-se ao atendimento';
-  if (!guiche) return baseMessage;
+  if (!guiche) return sanitize(baseMessage);
   
-  // Evita redundância caso o utilizador já escreva "Guichê 1" no input
   const textoGuiche = String(guiche).toLowerCase();
   const prefixo = (textoGuiche.includes('guich') || textoGuiche.includes('mesa') || textoGuiche.includes('sala')) ? '' : 'Guichê ';
   
-  return `${baseMessage}, ${prefixo}${guiche}`;
+  return sanitize(`${baseMessage}, ${prefixo}${guiche}`);
 }
 
 function renderHistory(){
   if(!el.historyList) return;
-  const numItems = isPanel ? 8 : 12; // Mostra menos itens na TV para evitar overflow devido ao tamanho da fonte
+  const numItems = isPanel ? 8 : 12; 
   const recentHistory = history.slice(-numItems).reverse(); 
   
   el.historyList.innerHTML = recentHistory.map((item, index) => {
@@ -364,7 +377,7 @@ function renderHistory(){
     
     return `
       <div class="history-item ${isRecent ? 'recent' : ''}">
-        <div class="history-senha">${item.prefix}-${pad(item.number)}</div>
+        <div class="history-senha">${sanitize(item.prefix)}-${sanitize(pad(item.number))}</div>
         <div class="history-info">
           <div class="history-guiche">${mensagem}</div>
           <div class="history-time">${timeStr}</div>
@@ -390,7 +403,16 @@ function updateDisplay(){
 function anunciarSenha() {
   const senha = `${currentPrefix}-${pad(state.number)}`;
   const mensagem = getSetorMessage(currentPrefix, state.guiche);
-  const frase = `Senha ${senha}. ${mensagem}`;
+  
+  // Criação de texto limpo para o sintetizador de voz (sem HTML)
+  const baseVoiceMessage = setorMessages[currentPrefix] || 'Dirija-se ao atendimento';
+  let vozMensagem = baseVoiceMessage;
+  if (state.guiche) {
+      const textoGuiche = String(state.guiche).toLowerCase();
+      const prefixo = (textoGuiche.includes('guich') || textoGuiche.includes('mesa') || textoGuiche.includes('sala')) ? '' : 'Guichê ';
+      vozMensagem = `${baseVoiceMessage}, ${prefixo}${state.guiche}`;
+  }
+  const frase = `Senha ${senha}. ${vozMensagem}`;
   
   const msg = new SpeechSynthesisUtterance(frase);
   const vozes = window.speechSynthesis.getVoices();
