@@ -264,11 +264,11 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
     <label for="prefixSelect">Setor / Prefixo</label>
     <select id="prefixSelect">
       
-      <option value="E">Setor E - Protocolo</option>
-      <option value="F">Setor F - Fiscalização</option>
-      <option value="G">Setor G - Gerência</option>
-      <option value="H">Setor H - Habite-se</option>
-      <option value="I">Setor I - IPTU</option>
+      <option value="E"> E - Protocolo</option>
+      <option value="F"> F - Protocolo - Preferencial</option>
+      <option value="G"> G - Acesso a Informação</option>
+      
+      <option value="I"> I - Execução Fiscal</option>
       <option value="J" selected> J - Divida Ativa</option>
       
     </select>
@@ -341,7 +341,10 @@ const sanitize = (str) => {
 };
 
 const setorMessages = {
-  'E': 'Dirija-se ao Protocolo',
+  'E': 'Protocolo',
+  'F': 'Protocolo - Preferencial',
+  'G': 'Protocolo - Acesso a Informação',
+  'I': 'Execução Fiscal',
   'J': 'Dirija-se à Dívida Ativa no mezanino',
 };
 
