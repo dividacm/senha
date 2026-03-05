@@ -64,7 +64,7 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
   <div class="ticket card">
     <div>
       <div class="big" id="senhaBig">J-000</div>
-      <div class="guiche" id="guicheTxt" text-align: "center"></div>
+      <div class="guiche" id="guicheTxt" style="text-align: center;"></div>
     </div>
   </div>
 </section>
@@ -106,14 +106,9 @@ kbd{background:#0b1221;border:1px solid rgba(255,255,255,0.12);padding:2px 6px;b
 </footer>
 </div>
 
-<!-- Áudio de sino 
-<audio id="chimeLong" preload="auto">
-  <source src="https://raw.githubusercontent.com/dividacm/senha/main/Senha.mp3" type="audio/mpeg">
-</audio> -->
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { getDatabase, ref, onValue, runTransaction, get } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
 // Config Firebase
 const firebaseConfig = {
@@ -130,7 +125,8 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const stateRef = ref(db,"fila/state");
 
-let state = {prefix:"J", number:0, guiche:"", ts:Date.now()};
+// callTs adicionado para distinguir sincronização visual de comando de áudio
+let state = {prefix:"J", number:0, guiche:"", ts:Date.now(), callTs:Date.now()};
 let loaded = false;
 
 const el = {
@@ -157,32 +153,6 @@ function updateDisplay(){
   el.senhaBig.classList.add('flash');
 }
 
-/* Desbloquear áudio no primeiro clique do usuário
-function unlockAudio() {
-  const audio = document.getElementById('chimeLong');
-  audio.play().then(() => {
-    audio.pause();
-    audio.currentTime = 0;
-    console.log("🔊 Áudio desbloqueado");
-  }).catch(err => {
-    console.warn("Erro ao desbloquear áudio:", err);
-  });
-
-  document.removeEventListener("click", unlockAudio);
-  document.removeEventListener("keydown", unlockAudio);
-}
-
-// Ouvir primeira interação do usuário
-*document.addEventListener("click", unlockAudio);
-document.addEventListener("keydown", unlockAudio);
-
-function playChimeLong() {
-  const audio = document.getElementById('chimeLong');
-  audio.currentTime = 0;
-  audio.play().catch(err => console.warn("Falha ao tocar áudio:", err));
-}
-*/
-
 // 🔊 Falar senha e guichê com Web Speech API
 function anunciarSenha() {
   const senha = `${state.prefix.toUpperCase()}-${pad(state.number)}`;
@@ -191,17 +161,12 @@ function anunciarSenha() {
   
   const msg = new SpeechSynthesisUtterance(frase);
   
-  // 1. Pegar todas as vozes disponíveis no sistema
   const vozes = window.speechSynthesis.getVoices();
-
-  // 2. Tentar encontrar uma voz feminina em português
-  // Procuramos por nomes comuns de vozes femininas ou marcas de voz do sistema
   const vozFeminina = vozes.find(voz => 
     voz.lang === 'pt-BR' && 
     (voz.name.includes('Maria') || voz.name.includes('Luciana') || voz.name.includes('Google') || voz.name.includes('Feminine'))
   );
 
-  // 3. Se encontrar, aplica a voz; se não, ele usará a padrão do sistema
   if (vozFeminina) {
     msg.voice = vozFeminina;
   }
@@ -215,9 +180,8 @@ function anunciarSenha() {
   window.speechSynthesis.speak(msg);
 }
 
-// Atualizar estado no Firebase
+// Atualizar estado no Firebase silenciosamente (sincronização visual)
 function broadcast(){
-  if(!loaded) return;
   state.ts = Date.now();
   runTransaction(stateRef, current=>{
     if(!current || current.ts <= state.ts){
@@ -227,40 +191,53 @@ function broadcast(){
   });
 }
 
-// Receber atualizações do Firebase
+// Atualizar estado no Firebase forçando chamada (áudio no painel)
+function broadcastCall(){
+  state.callTs = Date.now();
+  broadcast();
+}
+
+// Receber atualizações do Firebase (Substitui também o get inicial)
 onValue(stateRef, snapshot => {
   if(snapshot.exists()){
     const remote = snapshot.val();
+    
+    // Tratamento de carregamento inicial
+    if(!loaded) {
+        Object.assign(state, remote);
+        updateDisplay();
+        loaded = true;
+        return; // Retorna cedo para não emitir som ao carregar
+    }
+
+    // Tratamento de atualizações em tempo real
     if(remote.ts > state.ts){
+      const deveAnunciar = remote.callTs > (state.callTs || 0);
       Object.assign(state, remote);
       updateDisplay();
-      anunciarSenha(); // toca som em todos os dispositivos conectados
+      
+      if (deveAnunciar) anunciarSenha();
     }
+  } else {
+      loaded = true;
+      updateDisplay();
   }
-});
-
-// Inicializar estado
-get(stateRef).then(snapshot=>{
-  if(snapshot.exists()){
-    state = snapshot.val();
-  }
-  updateDisplay();
-  loaded = true;
 });
 
 // Ações
-function next(){ state.number++; broadcast(); updateDisplay(); anunciarSenha();}
-function back(){ state.number=Math.max(0,state.number-1); broadcast(); updateDisplay(); anunciarSenha();}
-function resetToZero(){ state.number=0; broadcast(); updateDisplay();}
+function next(){ state.number++; broadcastCall(); updateDisplay(); anunciarSenha();}
+function back(){ state.number=Math.max(0,state.number-1); broadcastCall(); updateDisplay(); anunciarSenha();}
+function resetToZero(){ state.number=0; broadcastCall(); updateDisplay();}
 
-// Eventos UI
+// Eventos UI (Atualização silenciosa apenas para espelhar a tela)
 el.prefix.addEventListener('input',()=>{state.prefix=el.prefix.value.toUpperCase(); broadcast(); updateDisplay();});
 el.numero.addEventListener('change',()=>{state.number=parseInt(el.numero.value||0); broadcast(); updateDisplay();});
 el.guiche.addEventListener('input',()=>{state.guiche=el.guiche.value; broadcast(); updateDisplay();});
 
+// Eventos de Botão (Fazem chamadas com áudio)
 document.getElementById("btnNext").addEventListener('click',next);
 document.getElementById("btnBack").addEventListener('click',back);
-document.getElementById("btnRepeat").addEventListener('click',()=>anunciarSenha());
+document.getElementById("btnRepeat").addEventListener('click',() => { broadcastCall(); anunciarSenha(); });
 document.getElementById("btnReset").addEventListener('click',()=>{resetToZero(); anunciarSenha();});
 document.getElementById("btnClear").addEventListener('click',()=>{if(confirm("Zerar contador para 0?")) resetToZero();});
 document.getElementById("btnPainel").addEventListener('click',()=>{const url = new URL(location.href); url.searchParams.set("painel","1"); window.open(url.toString(), "_blank");});
@@ -269,7 +246,7 @@ document.getElementById("btnPainel").addEventListener('click',()=>{const url = n
 window.addEventListener('keydown',e=>{
   if(['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName)) return;
   if(e.key.toLowerCase()==='n') next();
-  else if(e.key.toLowerCase()==='r') anunciarSenha();
+  else if(e.key.toLowerCase()==='r') { broadcastCall(); anunciarSenha(); }
   else if(e.key.toLowerCase()==='b') back();
   else if(e.key==='0') resetToZero();
 });
@@ -290,9 +267,3 @@ initPanelMode();
 </script>
 </body>
 </html>
-
-
-
-
-
-
