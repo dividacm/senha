@@ -111,7 +111,7 @@
       <div class="dot"></div>
       <span>Praça de Atendimento do Município de Campo Mourão</span>
     </div>
-    <div id="status" aria-live="polite" style="font-size:13px;color:var(--muted)">Conectado</div>
+    <div id="status" aria-live="polite" style="font-size:13px;color:var(--muted); font-weight: bold;">Conectando...</div>
   </header>
 
   <main class="grid" id="main">
@@ -209,8 +209,21 @@
     guiche: document.getElementById("guiche"),
     clock: document.getElementById("clock"),
     historyList: document.getElementById("historyList"),
-    controls: document.querySelectorAll('.controls')
+    controls: document.querySelectorAll('.controls'),
+    status: document.getElementById("status")
   };
+
+  // Monitoramento de Conexão (Resiliência)
+  const connectedRef = ref(db, ".info/connected");
+  onValue(connectedRef, (snap) => {
+    if (snap.val() === true) {
+      el.status.textContent = "🟢 Conectado";
+      el.status.style.color = "var(--accent)";
+    } else {
+      el.status.textContent = "🔴 Offline";
+      el.status.style.color = "var(--danger)";
+    }
+  });
 
   const pad = n => String(n).padStart(3,"0");
 
@@ -448,7 +461,6 @@
         overlay.style.display = 'none';
       });
 
-      // Escutar o Estado Global para atualizar a senha principal
       const globalStateRef = ref(db, 'fila/global/estado');
       let isInit = true;
 
@@ -478,7 +490,6 @@
         }
       });
 
-      // Escutar o Histórico Global como fonte única da verdade
       const globalHistoryRef = ref(db, 'fila/global/historico');
       onValue(globalHistoryRef, snapshot => {
         if (snapshot.exists()) {
@@ -493,6 +504,8 @@
       loadPrefix(currentPrefix);
     }
   }
+
+  initPanelMode();
 </script>
 </body>
 </html>
