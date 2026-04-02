@@ -50,16 +50,17 @@
   footer { margin-top: 16px; display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 13px; flex-shrink: 0; }
   .banner { width: 600px; height: 200px; background-image: url('https://raw.githubusercontent.com/dividacm/senha/refs/heads/main/logo.png'); background-size: contain; background-repeat: no-repeat; background-position: center; }
   .banner2 { width: 400px; height: 200px; background-image: url('https://raw.githubusercontent.com/dividacm/senha/refs/heads/main/GCCOB-FUNDO.png'); background-size: 70%; background-position: center; background-repeat: no-repeat; }
+  .relogio { font-size: 36px; }
   
   .history-panel { display: flex; flex-direction: column; flex: 1; min-height: 0; margin-top: 0px; }
   .history-header { font-size: 20px; font-weight: 600; color: var(--muted); margin-bottom: 12px; padding-left: 4px; }
-  .history-list { display: flex; flex-direction: column; gap: 8px; flex: 1; overflow-y: auto; }
+  .history-list { display: flex; flex-direction: column; gap: 6px; flex: 1; overflow-y: auto; }
   .history-item { background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
   .history-item.recent { border-color: rgba(96,165,250,0.3); background: linear-gradient(180deg, rgba(96,165,250,0.08), rgba(96,165,250,0.03)); }
-  .history-senha { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+  .history-senha { font-size: 30px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
   .history-info { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; }
   .history-guiche { font-size: 14px; color: var(--muted); }
-  .history-time { font-size: 12px; color: #6b7280; }
+  .history-time { font-size: 22px; color: #6b7280; }
   .history-list::-webkit-scrollbar { width: 8px; }
   .history-list::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); border-radius: 4px; }
   .history-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
@@ -169,7 +170,7 @@
   </main>
 
   <footer>
-    <div><span id="clock">--:--</span></div>
+    <div><span id="clock" class="relogio">--:--</span></div>
     <div class="banner"></div>
     <div class="banner2"></div>
     <div><span id="syncInfo">Canal: Firebase</span></div>
@@ -193,13 +194,19 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   
+  // Instância de áudio para o aviso sonoro antes da fala
+  // Opcional: Suba seu próprio arquivo MP3 no Github para não depender de links externos.
+  const somChamada = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+  somChamada.volume = 0.5;
+  
   let currentPrefix = "J"; 
   let state = { number:0, guiche:"1", ts:Date.now() };
   let loaded = false;
   let currentListener = null;
   let history = []; 
   
-  const isPanel = new URL(location.href).searchParams.get('painel') === '1';
+  // Utilização de URLSearchParams para maior robustez na leitura do parâmetro
+  const isPanel = new URLSearchParams(window.location.search).get('painel') === '1';
   
   const el = {
     senhaBig: document.getElementById("senhaBig"),
@@ -260,7 +267,7 @@
         <div class="history-item ${isRecent ? 'recent' : ''}">
           <div class="history-senha">${sanitize(item.prefix)}-${sanitize(pad(item.number))}</div>
           <div class="history-info">
-            <div class="history-guiche">${mensagem}</div>
+  
             <div class="history-time">${timeStr}</div>
           </div>
         </div>
@@ -280,7 +287,20 @@
   }
 
   function anunciarSenha() {
-    const senha = `${currentPrefix}-${pad(state.number)}`;
+    // 1. Dicionário fonético para forçar a pronúncia correta das letras isoladas
+    const foneticaLetras = {
+      'E': 'É',
+      'F': 'Efe',
+      'G': 'Gê',
+      'I': 'Í',
+      'J': 'Jota'
+    };
+    const letraFalada = foneticaLetras[currentPrefix] || currentPrefix;
+    
+    // 2. Transforma "005" em 5 numérico para evitar a leitura de "zero zero"
+    const numeroFalado = Number(state.number);
+
+    // 3. Montagem da mensagem do guichê
     const baseVoiceMessage = setorMessages[currentPrefix] || 'Dirija-se ao atendimento';
     let vozMensagem = baseVoiceMessage;
     
@@ -290,16 +310,31 @@
       vozMensagem = `${baseVoiceMessage}, ${prefixo}${state.guiche}`;
     }
     
-    const frase = `Senha ${senha}. ${vozMensagem}`;
+    // 4. Frase construída com vírgulas para forçar pausas respiratórias no sintetizador
+    const frase = `Senha, ${letraFalada}, ${numeroFalado}. ${vozMensagem}`;
     const msg = new SpeechSynthesisUtterance(frase);
+    
     const vozes = window.speechSynthesis.getVoices();
-    const vozFeminina = vozes.find(voz => voz.lang === 'pt-BR' && ( voz.name.includes('Luciana') || voz.name.includes('Maria') || voz.name.includes('Google') || voz.name.includes('Feminine')));
+    const vozFeminina = vozes.find(voz => voz.lang === 'pt-BR' && (voz.name.includes('Luciana') || voz.name.includes('Maria') || voz.name.includes('Google') || voz.name.includes('Feminine')));
     
     if (vozFeminina) msg.voice = vozFeminina;
     msg.lang = "pt-BR";
-    msg.rate = 1; msg.pitch = 1; msg.volume = 1;
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(msg);
+    msg.rate = 0.9; // Reduzido para maior clareza em ambientes com eco
+    msg.pitch = 1;
+    msg.volume = 1;
+    
+    window.speechSynthesis.cancel(); // Cancela falas anteriores pendentes
+    
+    // 5. Toca o som de notificação e, logo após, dispara a voz
+    somChamada.currentTime = 0;
+    somChamada.play().then(() => {
+      setTimeout(() => {
+        window.speechSynthesis.speak(msg);
+      }, 800); 
+    }).catch(e => {
+      // Fallback de segurança: se o navegador bloquear o som, fala a senha de qualquer forma
+      window.speechSynthesis.speak(msg);
+    });
   }
 
   function getStateRef(){ return ref(db, `fila/setores/${currentPrefix}`); }
@@ -432,7 +467,9 @@
   });
   
   document.getElementById("btnPainel").addEventListener('click', () => {
-    const url = new URL(location.href); url.searchParams.set("painel","1"); window.open(url.toString(), "_blank");
+    // Correção: Extrai a URL limpa e adiciona o parâmetro via string
+    const baseUrl = window.location.href.split('?')[0].split('#')[0];
+    window.open(baseUrl + '?painel=1', '_blank');
   });
   
   window.addEventListener('keydown', e => {
@@ -490,6 +527,7 @@
         }
       });
 
+      // Centralização da leitura do histórico via Firebase
       const globalHistoryRef = ref(db, 'fila/global/historico');
       onValue(globalHistoryRef, snapshot => {
         if (snapshot.exists()) {
