@@ -50,17 +50,16 @@
   footer { margin-top: 16px; display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 13px; flex-shrink: 0; }
   .banner { width: 600px; height: 200px; background-image: url('https://raw.githubusercontent.com/dividacm/senha/refs/heads/main/logo.png'); background-size: contain; background-repeat: no-repeat; background-position: center; }
   .banner2 { width: 400px; height: 200px; background-image: url('https://raw.githubusercontent.com/dividacm/senha/refs/heads/main/GCCOB-FUNDO.png'); background-size: 70%; background-position: center; background-repeat: no-repeat; }
-  .relogio { font-size: 36px; }
   
   .history-panel { display: flex; flex-direction: column; flex: 1; min-height: 0; margin-top: 0px; }
   .history-header { font-size: 20px; font-weight: 600; color: var(--muted); margin-bottom: 12px; padding-left: 4px; }
-  .history-list { display: flex; flex-direction: column; gap: 6px; flex: 1; overflow-y: auto; }
+  .history-list { display: flex; flex-direction: column; gap: 8px; flex: 1; overflow-y: auto; }
   .history-item { background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
   .history-item.recent { border-color: rgba(96,165,250,0.3); background: linear-gradient(180deg, rgba(96,165,250,0.08), rgba(96,165,250,0.03)); }
-  .history-senha { font-size: 30px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+  .history-senha { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
   .history-info { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; }
   .history-guiche { font-size: 14px; color: var(--muted); }
-  .history-time { font-size: 22px; color: #6b7280; }
+  .history-time { font-size: 12px; color: #6b7280; }
   .history-list::-webkit-scrollbar { width: 8px; }
   .history-list::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); border-radius: 4px; }
   .history-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
@@ -110,7 +109,7 @@
   <header>
     <div class="brand">
       <div class="dot"></div>
-      <span>Praça de Atendimento do Município de Campo Mourão</span>
+      <span id="titleLabel">Praça de Atendimento do Município de Campo Mourão</span>
     </div>
     <div id="status" aria-live="polite" style="font-size:13px;color:var(--muted); font-weight: bold;">Conectando...</div>
   </header>
@@ -148,9 +147,13 @@
         <div class="field">
           <label for="prefixSelect">Setor / Prefixo</label>
           <select id="prefixSelect">
+            <option value="A"> A - IPTU - Preferencial</option>
+            <option value="B"> B - IPTU</option>
+            <option value="C"> C - ITBI</option>
+            <option value="D"> D - Receita Diversas e Certidões</option>
             <option value="E"> E - Protocolo</option>
             <option value="F"> F - Protocolo - Preferencial</option>
-            <option value="G"> G - Acesso a Informação</option>
+            <option value="G"> G - Acesso a Informação (SIC)</option>
             <option value="I"> I - Execução Fiscal</option>
             <option value="J" selected> J - Divida Ativa</option>
           </select>
@@ -170,7 +173,7 @@
   </main>
 
   <footer>
-    <div><span id="clock" class="relogio">--:--</span></div>
+    <div><span id="clock">--:--</span></div>
     <div class="banner"></div>
     <div class="banner2"></div>
     <div><span id="syncInfo">Canal: Firebase</span></div>
@@ -194,8 +197,6 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   
-  // Instância de áudio para o aviso sonoro antes da fala
-  // Opcional: Suba seu próprio arquivo MP3 no Github para não depender de links externos.
   const somChamada = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
   somChamada.volume = 0.5;
   
@@ -205,8 +206,10 @@
   let currentListener = null;
   let history = []; 
   
-  // Utilização de URLSearchParams para maior robustez na leitura do parâmetro
-  const isPanel = new URLSearchParams(window.location.search).get('painel') === '1';
+  // Captura dos parâmetros da URL para multi-tenancy
+  const urlParams = new URLSearchParams(window.location.search);
+  const isPanel = urlParams.get('painel') === '1';
+  const salaID = urlParams.get('sala') || 'fila'; 
   
   const el = {
     senhaBig: document.getElementById("senhaBig"),
@@ -217,10 +220,32 @@
     clock: document.getElementById("clock"),
     historyList: document.getElementById("historyList"),
     controls: document.querySelectorAll('.controls'),
-    status: document.getElementById("status")
+    status: document.getElementById("status"),
+    titleLabel: document.getElementById("titleLabel")
   };
 
-  // Monitoramento de Conexão (Resiliência)
+  if (salaID !== 'fila') {
+    el.titleLabel.textContent += ` (${salaID.toUpperCase()})`;
+    document.title = `Senhas - ${salaID.toUpperCase()}`;
+  }
+  
+  // === CONFIGURAÇÃO DE IMAGENS POR SALA ===
+  const banner1 = document.querySelector('.banner');
+  const banner2 = document.querySelector('.banner2');
+
+  if (salaID === 'iptu') {
+    // Imagens exclusivas para a sala IPTU
+    banner1.style.backgroundImage = "url('https://raw.githubusercontent.com/dividacm/senha/refs/heads/main/logo.png')";
+    
+    // Se quiser uma segunda imagem no IPTU, mude a URL abaixo. 
+    // Se quiser ocultar a segunda imagem, use: banner2.style.display = 'none';
+    banner2.style.backgroundImage = "url('COLOQUE_A_URL_DA_2_IMAGEM_IPTU_AQUI.png')"; 
+  } else {
+    // Imagens da sala Principal (Dívida Ativa / Fila Padrão)
+    banner1.style.backgroundImage = "url('https://raw.githubusercontent.com/dividacm/senha/refs/heads/main/logo.png')";
+    banner2.style.backgroundImage = "url('https://raw.githubusercontent.com/dividacm/senha/refs/heads/main/GCCOB-FUNDO.png')";
+  }
+
   const connectedRef = ref(db, ".info/connected");
   onValue(connectedRef, (snap) => {
     if (snap.val() === true) {
@@ -240,6 +265,10 @@
   };
 
   const setorMessages = {
+    'A': 'IPTU - Preferencial',
+    'B': 'IPTU',
+    'C': 'ITBI',
+    'D': 'Receitas Diversas e Certidões',
     'E': 'Protocolo',
     'F': 'Protocolo - Preferencial',
     'G': 'Protocolo - Acesso a Informação',
@@ -248,7 +277,7 @@
   };
 
   function getSetorMessage(prefix, guiche){
-    const baseMessage = setorMessages[prefix] || 'Dirija-se ao atendimento';
+    const baseMessage = setorMessages[prefix] || 'Atendimento';
     if (!guiche) return sanitize(baseMessage);
     const textoGuiche = String(guiche).toLowerCase();
     const prefixo = (textoGuiche.includes('guich') || textoGuiche.includes('mesa') || textoGuiche.includes('sala')) ? '' : 'Guichê ';
@@ -267,7 +296,7 @@
         <div class="history-item ${isRecent ? 'recent' : ''}">
           <div class="history-senha">${sanitize(item.prefix)}-${sanitize(pad(item.number))}</div>
           <div class="history-info">
-  
+            <div class="history-guiche">${mensagem}</div>
             <div class="history-time">${timeStr}</div>
           </div>
         </div>
@@ -287,8 +316,11 @@
   }
 
   function anunciarSenha() {
-    // 1. Dicionário fonético para forçar a pronúncia correta das letras isoladas
     const foneticaLetras = {
+      'A': 'A',
+      'B': 'Bê',
+      'C': 'Cê',
+      'D': 'Dê',
       'E': 'É',
       'F': 'Efe',
       'G': 'Gê',
@@ -296,11 +328,7 @@
       'J': 'Jota'
     };
     const letraFalada = foneticaLetras[currentPrefix] || currentPrefix;
-    
-    // 2. Transforma "005" em 5 numérico para evitar a leitura de "zero zero"
     const numeroFalado = Number(state.number);
-
-    // 3. Montagem da mensagem do guichê
     const baseVoiceMessage = setorMessages[currentPrefix] || 'Dirija-se ao atendimento';
     let vozMensagem = baseVoiceMessage;
     
@@ -310,7 +338,6 @@
       vozMensagem = `${baseVoiceMessage}, ${prefixo}${state.guiche}`;
     }
     
-    // 4. Frase construída com vírgulas para forçar pausas respiratórias no sintetizador
     const frase = `Senha, ${letraFalada}, ${numeroFalado}. ${vozMensagem}`;
     const msg = new SpeechSynthesisUtterance(frase);
     
@@ -319,12 +346,10 @@
     
     if (vozFeminina) msg.voice = vozFeminina;
     msg.lang = "pt-BR";
-    msg.rate = 1; // Reduzido para maior clareza em ambientes com eco
+    msg.rate = 1.2; 
     msg.pitch = 1;
     msg.volume = 1;
     
-   // 5. Fila de áudio: Toca o som e enfileira a voz sem usar cancel()
-    // Clona o som para permitir toques sobrepostos se a fila andar rápido
     const somAtual = somChamada.cloneNode(); 
     
     somAtual.play().then(() => {
@@ -336,20 +361,20 @@
     });
   }
 
-  function getStateRef(){ return ref(db, `fila/setores/${currentPrefix}`); }
+  function getStateRef(){ return ref(db, `${salaID}/setores/${currentPrefix}`); }
 
   function dispararPainelGlobal(prefix, number, guiche, ts) {
-    const globalStateRef = ref(db, 'fila/global/estado');
-    runTransaction(globalStateRef, () => { return { prefix, number, guiche, ts }; });
+    const globalStateRef = ref(db, `${salaID}/global/estado`);
+    runTransaction(globalStateRef, () => { return { prefix, number, guiche, ts }; }).catch(e => alert("Falha no painel global: " + e.message));
     
-    const globalHistoryRef = ref(db, 'fila/global/historico');
+    const globalHistoryRef = ref(db, `${salaID}/global/historico`);
     runTransaction(globalHistoryRef, (currentData) => {
       let historyData = currentData || [];
       if(!Array.isArray(historyData)) historyData = [];
       historyData.push({ prefix, number, guiche, ts });
       if(historyData.length > 30){ historyData = historyData.slice(-30); }
       return historyData;
-    });
+    }).catch(e => alert("Falha no histórico global: " + e.message));
   }
 
   function loadPrefix(prefix){
@@ -382,11 +407,13 @@
           loaded = true;
         }
       }
+    }, (error) => {
+      alert("Erro ao ler do Firebase (Verifique suas Regras de Segurança): " + error.message);
     });
   }
 
   function next(){
-    if(!loaded) return;
+    if(!loaded) { alert("Aguarde a conexão com o banco de dados antes de chamar a senha."); return; }
     const novoTs = Date.now(); state.ts = novoTs;
     const meuGuiche = el.guiche.value;
     runTransaction(getStateRef(), (current) => {
@@ -400,11 +427,11 @@
         updateDisplay(); anunciarSenha();
         dispararPainelGlobal(currentPrefix, confirmedState.number, confirmedState.guiche, confirmedState.ts);
       }
-    });
+    }).catch(e => alert("Erro ao salvar senha no Firebase: " + e.message));
   }
 
   function back(){
-    if(!loaded) return;
+    if(!loaded) { alert("Aguarde a conexão com o banco de dados antes de chamar a senha."); return; }
     const novoTs = Date.now(); state.ts = novoTs;
     const meuGuiche = el.guiche.value;
     runTransaction(getStateRef(), (current) => {
@@ -418,7 +445,7 @@
         updateDisplay(); anunciarSenha();
         dispararPainelGlobal(currentPrefix, confirmedState.number, confirmedState.guiche, confirmedState.ts);
       }
-    });
+    }).catch(e => alert("Erro ao voltar senha no Firebase: " + e.message));
   }
 
   el.prefixSelect.addEventListener('change', () => loadPrefix(el.prefixSelect.value));
@@ -426,7 +453,7 @@
   el.numero.addEventListener('change', () => {
     state.number = parseInt(el.numero.value || 0); 
     const novoTs = Date.now(); state.ts = novoTs;
-    runTransaction(getStateRef(), () => { return { number: state.number, guiche: state.guiche, ts: novoTs }; });
+    runTransaction(getStateRef(), () => { return { number: state.number, guiche: state.guiche, ts: novoTs }; }).catch(e => alert("Erro: " + e.message));
     updateDisplay(); dispararPainelGlobal(currentPrefix, state.number, state.guiche, novoTs);
   });
   
@@ -451,7 +478,7 @@
     runTransaction(getStateRef(), () => { return { number: 0, guiche: state.guiche, ts: novoTs }; })
     .then(() => {
       state.number = 0; updateDisplay(); dispararPainelGlobal(currentPrefix, 0, state.guiche, novoTs); anunciarSenha();
-    });
+    }).catch(e => alert("Erro ao resetar: " + e.message));
   });
   
   document.getElementById("btnClear").addEventListener('click', () => {
@@ -460,15 +487,14 @@
       runTransaction(getStateRef(), () => { return { number: 0, guiche: el.guiche.value, ts: novoTs }; })
       .then(() => {
         state.number = 0; state.ts = novoTs; updateDisplay(); dispararPainelGlobal(currentPrefix, 0, el.guiche.value, novoTs);
-      });
-      runTransaction(ref(db, 'fila/global/historico'), () => []);
+      }).catch(e => alert("Erro: " + e.message));
+      runTransaction(ref(db, `${salaID}/global/historico`), () => []).catch(e => alert("Erro ao apagar histórico: " + e.message));
     }
   });
   
   document.getElementById("btnPainel").addEventListener('click', () => {
-    // Correção: Extrai a URL limpa e adiciona o parâmetro via string
     const baseUrl = window.location.href.split('?')[0].split('#')[0];
-    window.open(baseUrl + '?painel=1', '_blank');
+    window.open(baseUrl + `?sala=${salaID}&painel=1`, '_blank');
   });
   
   window.addEventListener('keydown', e => {
@@ -497,7 +523,7 @@
         overlay.style.display = 'none';
       });
 
-      const globalStateRef = ref(db, 'fila/global/estado');
+      const globalStateRef = ref(db, `${salaID}/global/estado`);
       let isInit = true;
 
       onValue(globalStateRef, snapshot => {
@@ -524,10 +550,11 @@
             anunciarSenha();
           }
         }
+      }, (error) => {
+        alert("Erro no painel: Permissão negada no Firebase (" + error.message + ")");
       });
 
-      // Centralização da leitura do histórico via Firebase
-      const globalHistoryRef = ref(db, 'fila/global/historico');
+      const globalHistoryRef = ref(db, `${salaID}/global/historico`);
       onValue(globalHistoryRef, snapshot => {
         if (snapshot.exists()) {
           history = snapshot.val() || [];
