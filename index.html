@@ -323,16 +323,15 @@
     msg.pitch = 1;
     msg.volume = 1;
     
-    window.speechSynthesis.cancel(); // Cancela falas anteriores pendentes
+   // 5. Fila de áudio: Toca o som e enfileira a voz sem usar cancel()
+    // Clona o som para permitir toques sobrepostos se a fila andar rápido
+    const somAtual = somChamada.cloneNode(); 
     
-    // 5. Toca o som de notificação e, logo após, dispara a voz
-    somChamada.currentTime = 0;
-    somChamada.play().then(() => {
+    somAtual.play().then(() => {
       setTimeout(() => {
         window.speechSynthesis.speak(msg);
       }, 800); 
     }).catch(e => {
-      // Fallback de segurança: se o navegador bloquear o som, fala a senha de qualquer forma
       window.speechSynthesis.speak(msg);
     });
   }
