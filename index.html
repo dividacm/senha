@@ -436,11 +436,6 @@
   }, 1000);
 
   function initPanelMode() {
-    try {
-      const saved = localStorage.getItem('senha_history');
-      if (saved) { history = JSON.parse(saved); renderHistory(); }
-    } catch(e) {}
-
     if (isPanel) {
       document.body.classList.add("panel-only");
       el.controls.forEach(ctrl => ctrl.style.display = "none");
@@ -453,6 +448,7 @@
         overlay.style.display = 'none';
       });
 
+      // Escutar o Estado Global para atualizar a senha principal
       const globalStateRef = ref(db, 'fila/global/estado');
       let isInit = true;
 
@@ -471,12 +467,6 @@
           }
 
           if (remote.ts !== state.ts) {
-            if (currentPrefix !== remote.prefix || state.number !== remote.number) {
-              history.push({ prefix: remote.prefix, number: remote.number, guiche: remote.guiche, ts: remote.ts });
-              if (history.length > 30) history.shift();
-              localStorage.setItem('senha_history', JSON.stringify(history));
-            }
-
             currentPrefix = remote.prefix;
             state.number = remote.number;
             state.guiche = remote.guiche;
@@ -487,12 +477,22 @@
           }
         }
       });
+
+      // Escutar o Histórico Global como fonte única da verdade
+      const globalHistoryRef = ref(db, 'fila/global/historico');
+      onValue(globalHistoryRef, snapshot => {
+        if (snapshot.exists()) {
+          history = snapshot.val() || [];
+        } else {
+          history = [];
+        }
+        renderHistory();
+      });
+
     } else {
       loadPrefix(currentPrefix);
     }
   }
-
-  initPanelMode();
 </script>
 </body>
 </html>
