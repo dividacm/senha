@@ -1,184 +1,182 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Senhas</title>
-<style>
-  :root {
-    --bg: #0f172a; --panel: #111827; --card: #1f2937; --text: #e5e7eb;
-    --muted: #9ca3af; --accent: #22c55e; --danger: #ef4444;
-    --warn: #f59e0b; --brand: #60a5fa;
-  }
-  * { box-sizing: border-box; }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Senhas</title>
   
-  html, body {
-    height: 100vh; margin: 0; font-family: system-ui, sans-serif;
-    background: radial-gradient(1000px 600px at 10% -20%, #111827, var(--bg));
-    color: var(--text); overflow: hidden;
-  }
-  .container { max-width: 1600px; margin: 0 auto; padding: 20px; height: 100%; display: flex; flex-direction: column; }
-  header { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-shrink: 0; }
-  .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; }
-  .brand .dot { width: 12px; height: 12px; border-radius: 999px; background: linear-gradient(135deg, var(--brand), #7dd3fc); box-shadow: 0 0 12px #38bdf8; }
-  .card { background: linear-gradient(100deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.06); }
-  
-  .grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 16px; flex: 1; min-height: 0; margin-top: 16px; }
-  .display { grid-column: 1 / -1; grid-row: 1 / 2; display: flex; flex-direction: column; gap: 16px; height: 100%; min-height: 0; }
-  .display .now { font-size: clamp(24px, 3vw, 36px); color: var(--muted); font-weight: 500; letter-spacing: .04em; flex-shrink: 0; text-align: center; }
-  .display .ticket { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 24px; padding: 18px; min-height: 0; background: radial-gradient(800px 300px at 50% -40%, rgba(96,165,250,0.2), transparent), linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02)); border: 1px solid rgba(255,255,255,0.08); }
-  .ticket .big { font-variant-numeric: tabular-nums; line-height: 1; font-weight: 650; letter-spacing: .03em; font-size: clamp(80px, 12vw, 150px); text-shadow: 0 6px 28px rgba(96,165,250,0.35); }
-  .ticket .guiche { font-size: clamp(16px, 1vw, 24px); opacity: .9; margin-top: 8px; }
-  
-  .controls:nth-of-type(1) { grid-column: 1 / 2; grid-row: 2 / 3; display: flex; flex-direction: column; gap: 8px; }
-  .controls:nth-of-type(2) { grid-column: 2 / 3; grid-row: 2 / 3; display: flex; flex-direction: row; gap: 8px; align-self: start; }
-  .row { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; }
-  .field { display: flex; flex-direction: column; gap: 6px; }
-  label { font-size: 14px; color: var(--muted); }
-  input, select { width: 100%; padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: #0b1221; color: var(--text); outline: none; font-size: 14px; }
-  input:focus, select:focus { border-color: var(--brand); box-shadow: 0 0 0 4px rgba(96,165,250,0.15); }
-  
-  .btns { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  button { padding: 10px 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); background: #101827; color: var(--text); font-weight: 600; cursor: pointer; font-size: 14px; }
-  button.primary { background: linear-gradient(135deg, #22c55e, #16a34a); border-color: rgba(34,197,94,0.6); }
-  button.warn { background: linear-gradient(135deg, #f59e0b, #d97706); border-color: rgba(245,158,11,0.6); }
-  button.danger { background: linear-gradient(135deg, #ef4444, #dc2626); border-color: rgba(239,68,68,0.6); }
-  button.ghost { background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); }
-  button:active { transform: translateY(1px); }
-  button:disabled { opacity: 0.5; cursor: not-allowed; }
-  
-  footer { margin-top: 16px; display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 13px; flex-shrink: 0; }
-  .banner { width: 600px; height: 200px; background-image: url('https://raw.githubusercontent.com/dividacm/senha/refs/heads/main/logo.png'); background-size: contain; background-repeat: no-repeat; background-position: center; }
-  .banner2 { width: 400px; height: 200px; background-image: url('https://raw.githubusercontent.com/dividacm/senha/refs/heads/main/GCCOB-FUNDO.png'); background-size: 70%; background-position: center; background-repeat: no-repeat; }
-  
-  .history-panel { display: flex; flex-direction: column; flex: 1; min-height: 0; margin-top: 0px; }
-  .history-header { font-size: 20px; font-weight: 600; color: var(--muted); margin-bottom: 12px; padding-left: 4px; }
-  .history-list { display: flex; flex-direction: column; gap: 8px; flex: 1; overflow-y: auto; }
-  .history-item { background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
-  .history-item.recent { border-color: rgba(96,165,250,0.3); background: linear-gradient(180deg, rgba(96,165,250,0.08), rgba(96,165,250,0.03)); }
-  .history-senha { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
-  .history-info { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; }
-  .history-guiche { font-size: 14px; color: var(--muted); }
-  .history-time { font-size: 12px; color: #6b7280; }
-  .history-list::-webkit-scrollbar { width: 8px; }
-  .history-list::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); border-radius: 4px; }
-  .history-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
-  
-  @keyframes flash { 0% { transform: scale(1); color: var(--accent); text-shadow: 0 6px 28px rgba(34,197,94,0.8); } 50% { transform: scale(1.1); color: var(--text); text-shadow: 0 6px 28px rgba(96,165,250,0.35); } 100% { transform: scale(1); color: var(--text); text-shadow: 0 6px 28px rgba(96,165,250,0.35); } }
-  .ticket .big.flash, .panel-only .ticket .big.flash { animation: flash 0.6s ease-in-out; }
-  
-  .panel-only .controls { display: none !important; }
-  .panel-only header .brand span { font-size: 1.5rem; opacity: .8; }
-  .panel-only #status { display: none; }
-  .panel-only .grid { display: flex; flex-direction: column; height: 100%; margin-top: 10px; }
-  .panel-only .display { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: auto 1fr; gap: 40px; height: 100%; }
-  .panel-only .now { grid-column: 1 / 2; grid-row: 1 / 2; font-size: clamp(30px, 4vw, 50px); text-align: center; padding-left: 0; margin-top: 20px; }
-  .panel-only .ticket { grid-column: 1 / 2; grid-row: 2 / 3; margin: 0 40px 40px 40px; text-align: center; }
-  .panel-only .ticket .big { font-size: clamp(150px, 16vw, 250px); }
-  .panel-only .ticket .guiche { font-size: clamp(35px, 3.5vw, 60px); color: var(--accent); font-weight: 600; margin-top: 20px; }
-  .panel-only .history-panel { display: flex !important; grid-column: 2 / 3; grid-row: 1 / 3; background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent); border-left: 2px solid rgba(255,255,255,0.05); padding: 0 0 0 30px; margin: 0; }
-  .panel-only .history-header { font-size: 28px; margin-bottom: 24px; color: var(--text); opacity: 0.8; }
-  .panel-only .history-senha { font-size: 40px; }
-  .panel-only .history-guiche { font-size: 18px; color: var(--text); opacity: 0.9; }
-  
-  #unlock-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15,23,42,0.95); z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; color: var(--text); text-align: center; backdrop-filter: blur(5px); }
-  #unlock-overlay svg { width: 80px; height: 80px; color: var(--brand); margin-bottom: 20px; animation: pulse 2s infinite; }
-  @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-  
-  @media(max-width:900px) {
-    html, body { overflow-y: auto; }
-    .grid { grid-template-columns: 1fr; grid-template-rows: auto; }
-    .display, .controls:nth-of-type(1), .controls:nth-of-type(2) { grid-column: auto; grid-row: auto; }
-    .btns { grid-template-columns: repeat(2, 1fr); }
-    .panel-only .display { grid-template-columns: 1fr; }
-    .panel-only .history-panel { grid-column: 1 / 2; grid-row: auto; border-left: none; padding-left: 0; }
-  }
-</style>
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fila-atendimento-default-rtdb.firebaseio.com" crossorigin>
+
+  <style>
+    :root {
+      --bg: #0f172a; --panel: #111827; --card: #1f2937; --text: #e5e7eb;
+      --muted: #9ca3af; --accent: #22c55e; --danger: #ef4444;
+      --warn: #f59e0b; --brand: #60a5fa;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100vh; margin: 0; font-family: system-ui, sans-serif;
+      background: radial-gradient(1000px 600px at 10% -20%, #111827, var(--bg));
+      color: var(--text); overflow: hidden;
+    }
+    .container { max-width: 1600px; margin: 0 auto; padding: 20px; height: 100%; display: flex; flex-direction: column; }
+    header { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-shrink: 0; }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; }
+    .brand .dot { width: 12px; height: 12px; border-radius: 999px; background: linear-gradient(135deg, var(--brand), #7dd3fc); box-shadow: 0 0 12px #38bdf8; }
+    .card { background: linear-gradient(100deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.06); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 16px; flex: 1; min-height: 0; margin-top: 16px; }
+    .display { grid-column: 1 / -1; grid-row: 1 / 2; display: flex; flex-direction: column; gap: 16px; height: 100%; min-height: 0; }
+    .display .now { font-size: clamp(24px, 3vw, 36px); color: var(--muted); font-weight: 500; letter-spacing: .04em; flex-shrink: 0; text-align: center; }
+    .display .ticket { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 24px; padding: 18px; min-height: 0; background: radial-gradient(800px 300px at 50% -40%, rgba(96,165,250,0.2), transparent), linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02)); border: 1px solid rgba(255,255,255,0.08); }
+    .ticket .big { font-variant-numeric: tabular-nums; line-height: 1; font-weight: 650; letter-spacing: .03em; font-size: clamp(80px, 12vw, 150px); text-shadow: 0 6px 28px rgba(96,165,250,0.35); }
+    .ticket .guiche { font-size: clamp(16px, 1vw, 24px); opacity: .9; margin-top: 8px; }
+    .controls:nth-of-type(1) { grid-column: 1 / 2; grid-row: 2 / 3; display: flex; flex-direction: column; gap: 8px; }
+    .controls:nth-of-type(2) { grid-column: 2 / 3; grid-row: 2 / 3; display: flex; flex-direction: row; gap: 8px; align-self: start; }
+    .row { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    label { font-size: 14px; color: var(--muted); }
+    input, select { width: 100%; padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: #0b1221; color: var(--text); outline: none; font-size: 14px; }
+    input:focus, select:focus { border-color: var(--brand); box-shadow: 0 0 0 4px rgba(96,165,250,0.15); }
+    .btns { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    button { padding: 10px 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); background: #101827; color: var(--text); font-weight: 600; cursor: pointer; font-size: 14px; }
+    button.primary { background: linear-gradient(135deg, #22c55e, #16a34a); border-color: rgba(34,197,94,0.6); }
+    button.warn { background: linear-gradient(135deg, #f59e0b, #d97706); border-color: rgba(245,158,11,0.6); }
+    button.danger { background: linear-gradient(135deg, #ef4444, #dc2626); border-color: rgba(239,68,68,0.6); }
+    button.ghost { background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); }
+    button:active { transform: translateY(1px); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    footer { margin-top: 16px; display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 13px; flex-shrink: 0; }
+    .banner { width: 600px; height: 200px; background-image: url('https://raw.githubusercontent.com/dividacm/senha/refs/heads/main/logo.png'); background-size: contain; background-repeat: no-repeat; background-position: center; }
+    .banner2 { width: 400px; height: 200px; background-image: url('https://raw.githubusercontent.com/dividacm/senha/refs/heads/main/GCCOB-FUNDO.png'); background-size: 70%; background-position: center; background-repeat: no-repeat; }
+    .history-panel { display: flex; flex-direction: column; flex: 1; min-height: 0; margin-top: 0px; }
+    .history-header { font-size: 20px; font-weight: 600; color: var(--muted); margin-bottom: 12px; padding-left: 4px; }
+    .history-list { display: flex; flex-direction: column; gap: 8px; flex: 1; overflow-y: auto; }
+    .history-item { background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
+    .history-item.recent { border-color: rgba(96,165,250,0.3); background: linear-gradient(180deg, rgba(96,165,250,0.08), rgba(96,165,250,0.03)); }
+    .history-senha { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+    .history-info { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; }
+    .history-guiche { font-size: 14px; color: var(--muted); }
+    .history-time { font-size: 12px; color: #6b7280; }
+    .history-list::-webkit-scrollbar { width: 8px; }
+    .history-list::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); border-radius: 4px; }
+    .history-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+    
+    @keyframes flash { 0% { transform: scale(1); color: var(--accent); text-shadow: 0 6px 28px rgba(34,197,94,0.8); } 50% { transform: scale(1.1); color: var(--text); text-shadow: 0 6px 28px rgba(96,165,250,0.35); } 100% { transform: scale(1); color: var(--text); text-shadow: 0 6px 28px rgba(96,165,250,0.35); } }
+    .ticket .big.flash, .panel-only .ticket .big.flash { animation: flash 0.6s ease-in-out; }
+    
+    .panel-only .controls { display: none !important; }
+    .panel-only header .brand span { font-size: 1.5rem; opacity: .8; }
+    .panel-only #status { display: none; }
+    .panel-only .grid { display: flex; flex-direction: column; height: 100%; margin-top: 10px; }
+    .panel-only .display { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: auto 1fr; gap: 40px; height: 100%; }
+    .panel-only .now { grid-column: 1 / 2; grid-row: 1 / 2; font-size: clamp(30px, 4vw, 50px); text-align: center; padding-left: 0; margin-top: 20px; }
+    .panel-only .ticket { grid-column: 1 / 2; grid-row: 2 / 3; margin: 0 40px 40px 40px; text-align: center; }
+    .panel-only .ticket .big { font-size: clamp(150px, 16vw, 250px); }
+    .panel-only .ticket .guiche { font-size: clamp(35px, 3.5vw, 60px); color: var(--accent); font-weight: 600; margin-top: 20px; }
+    .panel-only .history-panel { display: flex !important; grid-column: 2 / 3; grid-row: 1 / 3; background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent); border-left: 2px solid rgba(255,255,255,0.05); padding: 0 0 0 30px; margin: 0; }
+    .panel-only .history-header { font-size: 28px; margin-bottom: 24px; color: var(--text); opacity: 0.8; }
+    .panel-only .history-senha { font-size: 40px; }
+    .panel-only .history-guiche { font-size: 18px; color: var(--text); opacity: 0.9; }
+    
+    #unlock-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15,23,42,0.95); z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; color: var(--text); text-align: center; backdrop-filter: blur(5px); }
+    #unlock-overlay svg { width: 80px; height: 80px; color: var(--brand); margin-bottom: 20px; animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+    
+    @media(max-width:900px) {
+      html, body { overflow-y: auto; }
+      .grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+      .display, .controls:nth-of-type(1), .controls:nth-of-type(2) { grid-column: auto; grid-row: auto; }
+      .btns { grid-template-columns: repeat(2, 1fr); }
+      .panel-only .display { grid-template-columns: 1fr; }
+      .panel-only .history-panel { grid-column: 1 / 2; grid-row: auto; border-left: none; padding-left: 0; }
+    }
+  </style>
 </head>
 <body>
-<div id="unlock-overlay">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-  </svg>
-  <h1 style="font-size: 2.5rem; margin:0;">Clique na tela para ativar o Painel</h1>
-  <p style="color: var(--muted); font-size: 1.2rem;">O navegador exige um clique inicial para libertar a voz.</p>
-</div>
+  <div id="unlock-overlay">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+    </svg>
+    <h1 style="font-size: 2.5rem; margin:0;">Clique na tela para ativar o Painel</h1>
+    <p style="color: var(--muted); font-size: 1.2rem;">O navegador exige um clique inicial para libertar a voz.</p>
+  </div>
 
-<div class="container">
-  <header>
-    <div class="brand">
-      <div class="dot"></div>
-      <span id="titleLabel">Praça de Atendimento do Município de Campo Mourão</span>
-    </div>
-    <div id="status" aria-live="polite" style="font-size:13px;color:var(--muted); font-weight: bold;">Conectando...</div>
-  </header>
-
-  <main class="grid" id="main">
-    <section class="display">
-      <div class="now">Em atendimento</div>
-      <div class="ticket card">
-        <div>
-          <div class="big" id="senhaBig">J-000</div>
-          <div class="guiche" id="guicheTxt"></div>
-        </div>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="dot"></div>
+        <span id="titleLabel">Praça de Atendimento do Município de Campo Mourão</span>
       </div>
-      <div class="history-panel" id="historyPanel" style="display:none;">
-        <div class="history-header">Últimas senhas chamadas</div>
-        <div class="history-list" id="historyList"></div>
-      </div>
-    </section>
+      <div id="status" aria-live="polite" style="font-size:13px;color:var(--muted); font-weight: bold;">Conectando...</div>
+    </header>
 
-    <aside class="controls">
-      <div class="card">
-        <div class="btns">
-          <button class="primary" id="btnNext">Próxima senha (N)</button>
-          <button class="ghost" id="btnRepeat">Repetir (R)</button>
-          <button class="ghost" id="btnBack">Voltar (B)</button>
-          <button class="warn" id="btnReset">Resetar</button>
-          <button class="ghost" id="btnPainel">Abrir painel</button>
-          <button class="danger" id="btnClear">Zerar contador</button>
-        </div>
-      </div>
-    </aside>
-
-    <aside class="controls">
-      <div class="card" style="display:flex;flex-direction:column;gap:12px; flex: 1;">
-        <div class="field">
-          <label for="prefixSelect">Setor / Prefixo</label>
-          <select id="prefixSelect">
-            <option value="A"> A - IPTU - Preferencial</option>
-            <option value="B"> B - IPTU</option>
-            <option value="C"> C - ITBI</option>
-            <option value="D"> D - Receita Diversas e Certidões</option>
-            <option value="E"> E - Protocolo</option>
-            <option value="F"> F - Protocolo - Preferencial</option>
-            <option value="G"> G - Acesso a Informação (SIC)</option>
-            <option value="I"> I - Execução Fiscal</option>
-            <option value="J" selected> J - Divida Ativa</option>
-          </select>
-        </div>
-        <div class="row">
-          <div class="field">
-            <label for="numero">Número atual</label>
-            <input id="numero" type="number" min="0" value="0" />
-          </div>
-          <div class="field">
-            <label for="guiche">Guichê / Mesa</label>
-            <input id="guiche" value="" />
+    <main class="grid" id="main">
+      <section class="display">
+        <div class="now">Em atendimento</div>
+        <div class="ticket card">
+          <div>
+            <div class="big" id="senhaBig">---</div>
+            <div class="guiche" id="guicheTxt"></div>
           </div>
         </div>
-      </div>
-    </aside>
-  </main>
+        <div class="history-panel" id="historyPanel" style="display:none;">
+          <div class="history-header">Últimas senhas chamadas</div>
+          <div class="history-list" id="historyList"></div>
+        </div>
+      </section>
 
-  <footer>
-    <div><span id="clock">--:--</span></div>
-    <div class="banner"></div>
-    <div class="banner2"></div>
-    <div><span id="syncInfo">Canal: Firebase</span></div>
-  </footer>
-</div>
+      <aside class="controls">
+        <div class="card">
+          <div class="btns">
+            <button class="primary" id="btnNext">Próxima senha (N)</button>
+            <button class="ghost" id="btnRepeat">Repetir (R)</button>
+            <button class="ghost" id="btnBack">Voltar (B)</button>
+            <button class="warn" id="btnReset">Resetar</button>
+            <button class="ghost" id="btnPainel">Abrir painel</button>
+            <button class="danger" id="btnClear">Zerar contador</button>
+          </div>
+        </div>
+      </aside>
+
+      <aside class="controls">
+        <div class="card" style="display:flex;flex-direction:column;gap:12px; flex: 1;">
+          <div class="field">
+            <label for="prefixSelect">Setor / Prefixo</label>
+            <select id="prefixSelect">
+              <option value="A"> A - IPTU - Preferencial</option>
+              <option value="B"> B - IPTU</option>
+              <option value="C"> C - ITBI</option>
+              <option value="D"> D - Receita Diversas e Certidões</option>
+              <option value="E"> E - Protocolo</option>
+              <option value="F"> F - Protocolo - Preferencial</option>
+              <option value="G"> G - Acesso a Informação (SIC)</option>
+              <option value="I"> I - Execução Fiscal</option>
+              <option value="J" selected> J - Divida Ativa</option>
+            </select>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="numero">Número atual</label>
+              <input id="numero" type="number" min="0" value="0" />
+            </div>
+            <div class="field">
+              <label for="guiche">Guichê / Mesa</label>
+              <input id="guiche" value="" />
+            </div>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <footer>
+      <div><span id="clock">--:--</span></div>
+      <div class="banner"></div>
+      <div class="banner2"></div>
+      <div><span id="syncInfo">Canal: Firebase</span></div>
+    </footer>
+  </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
@@ -206,7 +204,6 @@
   let currentListener = null;
   let history = []; 
   
-  // Captura dos parâmetros da URL para multi-tenancy
   const urlParams = new URLSearchParams(window.location.search);
   const isPanel = urlParams.get('painel') === '1';
   const salaID = urlParams.get('sala') || 'fila'; 
@@ -229,19 +226,13 @@
     document.title = `Senhas - ${salaID.toUpperCase()}`;
   }
   
-  // === CONFIGURAÇÃO DE IMAGENS POR SALA ===
   const banner1 = document.querySelector('.banner');
   const banner2 = document.querySelector('.banner2');
 
   if (salaID === 'iptu') {
-    // Imagens exclusivas para a sala IPTU
     banner1.style.backgroundImage = "url('https://raw.githubusercontent.com/dividacm/senha/refs/heads/main/logo.png')";
-    
-    // Se quiser uma segunda imagem no IPTU, mude a URL abaixo. 
-    // Se quiser ocultar a segunda imagem, use: banner2.style.display = 'none';
-    banner2.style.backgroundImage = "url('COLOQUE_A_URL_DA_2_IMAGEM_IPTU_AQUI.png')"; 
+    banner2.style.backgroundImage = "url('https://raw.githubusercontent.com/dividacm/senha/refs/heads/main/GEVIM.jpeg')"; 
   } else {
-    // Imagens da sala Principal (Dívida Ativa / Fila Padrão)
     banner1.style.backgroundImage = "url('https://raw.githubusercontent.com/dividacm/senha/refs/heads/main/logo.png')";
     banner2.style.backgroundImage = "url('https://raw.githubusercontent.com/dividacm/senha/refs/heads/main/GCCOB-FUNDO.png')";
   }
@@ -304,28 +295,25 @@
     }).join('');
   }
 
-  function updateDisplay(){
+  function updateDisplay(isInitialLoad = false){
     el.senhaBig.textContent=`${currentPrefix}-${pad(state.number)}`;
     el.guicheTxt.textContent=getSetorMessage(currentPrefix, state.guiche);
     el.numero.value=state.number;
     el.guiche.value=state.guiche;
-    el.senhaBig.classList.remove('flash');
-    void el.senhaBig.offsetWidth;
-    el.senhaBig.classList.add('flash');
+    
+    if (!isInitialLoad) {
+      el.senhaBig.classList.remove('flash');
+      void el.senhaBig.offsetWidth;
+      el.senhaBig.classList.add('flash');
+    }
+    
     renderHistory();
   }
 
   function anunciarSenha() {
     const foneticaLetras = {
-      'A': 'A',
-      'B': 'Bê',
-      'C': 'Cê',
-      'D': 'Dê',
-      'E': 'É',
-      'F': 'Efe',
-      'G': 'Gê',
-      'I': 'Í',
-      'J': 'Jota'
+      'A': 'A', 'B': 'Bê', 'C': 'Cê', 'D': 'Dê', 'E': 'É',
+      'F': 'Efe', 'G': 'Gê', 'I': 'Í', 'J': 'Jota'
     };
     const letraFalada = foneticaLetras[currentPrefix] || currentPrefix;
     const numeroFalado = Number(state.number);
@@ -346,12 +334,12 @@
     
     if (vozFeminina) msg.voice = vozFeminina;
     msg.lang = "pt-BR";
-    msg.rate = 1.2; 
+    msg.rate = 1.8; 
     msg.pitch = 1;
     msg.volume = 1;
     
-    const somAtual = somChamada.cloneNode(); 
-    
+    const somAtual = somChamada.cloneNode();
+     
     somAtual.play().then(() => {
       setTimeout(() => {
         window.speechSynthesis.speak(msg);
@@ -363,18 +351,20 @@
 
   function getStateRef(){ return ref(db, `${salaID}/setores/${currentPrefix}`); }
 
-  function dispararPainelGlobal(prefix, number, guiche, ts) {
+  function dispararPainelGlobal(prefix, number, guiche, ts, salvarHistorico = true) {
     const globalStateRef = ref(db, `${salaID}/global/estado`);
     runTransaction(globalStateRef, () => { return { prefix, number, guiche, ts }; }).catch(e => alert("Falha no painel global: " + e.message));
     
-    const globalHistoryRef = ref(db, `${salaID}/global/historico`);
-    runTransaction(globalHistoryRef, (currentData) => {
-      let historyData = currentData || [];
-      if(!Array.isArray(historyData)) historyData = [];
-      historyData.push({ prefix, number, guiche, ts });
-      if(historyData.length > 30){ historyData = historyData.slice(-30); }
-      return historyData;
-    }).catch(e => alert("Falha no histórico global: " + e.message));
+    if (salvarHistorico) {
+      const globalHistoryRef = ref(db, `${salaID}/global/historico`);
+      runTransaction(globalHistoryRef, (currentData) => {
+        let historyData = currentData || [];
+        if(!Array.isArray(historyData)) historyData = [];
+        historyData.push({ prefix, number, guiche, ts });
+        if(historyData.length > 30){ historyData = historyData.slice(-30); }
+        return historyData;
+      }).catch(e => alert("Falha no histórico global: " + e.message));
+    }
   }
 
   function loadPrefix(prefix){
@@ -390,7 +380,7 @@
         const remote = snapshot.val();
         if (isInit) {
           Object.assign(state, remote);
-          updateDisplay();
+          updateDisplay(true); 
           isInit = false;
           loaded = true;
           return;
@@ -402,7 +392,7 @@
       } else {
         if (isInit) {
           state = {number:0, guiche: el.guiche.value, ts:Date.now()};
-          updateDisplay();
+          updateDisplay(true); 
           isInit = false;
           loaded = true;
         }
@@ -469,7 +459,7 @@
   
   document.getElementById("btnRepeat").addEventListener('click', () => {
     const novoTs = Date.now(); state.ts = novoTs;
-    dispararPainelGlobal(currentPrefix, state.number, state.guiche, novoTs);
+    dispararPainelGlobal(currentPrefix, state.number, state.guiche, novoTs, false);
     anunciarSenha();
   });
   
@@ -501,7 +491,10 @@
     if(['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName)) return;
     if(e.key.toLowerCase() === 'n') next();
     else if(e.key.toLowerCase() === 'r') {
-      const novoTs = Date.now(); dispararPainelGlobal(currentPrefix, state.number, state.guiche, novoTs); anunciarSenha();
+      const novoTs = Date.now(); 
+      state.ts = novoTs; 
+      dispararPainelGlobal(currentPrefix, state.number, state.guiche, novoTs, false); 
+      anunciarSenha();
     }
     else if(e.key.toLowerCase() === 'b') back();
   });
@@ -535,7 +528,7 @@
             state.number = remote.number;
             state.guiche = remote.guiche;
             state.ts = remote.ts;
-            updateDisplay();
+            updateDisplay(true); 
             isInit = false;
             return;
           }
