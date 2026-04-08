@@ -221,6 +221,11 @@
     titleLabel: document.getElementById("titleLabel")
   };
 
+  // Inicializa o guichê pelo cache do navegador local
+  const savedGuiche = localStorage.getItem('meuGuiche') || '';
+  el.guiche.value = savedGuiche;
+  state.guiche = savedGuiche;
+
   if (salaID !== 'fila') {
     el.titleLabel.textContent += ` (${salaID.toUpperCase()})`;
     document.title = `Senhas - ${salaID.toUpperCase()}`;
@@ -299,7 +304,7 @@
     el.senhaBig.textContent=`${currentPrefix}-${pad(state.number)}`;
     el.guicheTxt.textContent=getSetorMessage(currentPrefix, state.guiche);
     el.numero.value=state.number;
-    el.guiche.value=state.guiche;
+    // Removido: el.guiche.value=state.guiche; <- Isso gerava o problema do global state
     
     if (!isInitialLoad) {
       el.senhaBig.classList.remove('flash');
@@ -338,8 +343,8 @@
     msg.pitch = 1;
     msg.volume = 1;
     
-    const somAtual = somChamada.cloneNode();
-     
+    const somAtual = somChamada.cloneNode(); 
+    
     somAtual.play().then(() => {
       setTimeout(() => {
         window.speechSynthesis.speak(msg);
@@ -379,19 +384,24 @@
       if(snapshot.exists()){
         const remote = snapshot.val();
         if (isInit) {
-          Object.assign(state, remote);
+          state.number = remote.number;
+          state.ts = remote.ts;
+          // Não copia o guiche remoto (mantém o local)
           updateDisplay(true); 
           isInit = false;
           loaded = true;
           return;
         }
         if(remote.ts !== state.ts){
-          Object.assign(state, remote);
+          state.number = remote.number;
+          state.ts = remote.ts;
+          // Não copia o guiche remoto (mantém o local)
           updateDisplay();
         }
       } else {
         if (isInit) {
-          state = {number:0, guiche: el.guiche.value, ts:Date.now()};
+          state.number = 0;
+          state.ts = Date.now();
           updateDisplay(true); 
           isInit = false;
           loaded = true;
@@ -447,11 +457,11 @@
     updateDisplay(); dispararPainelGlobal(currentPrefix, state.number, state.guiche, novoTs);
   });
   
+  // Alteração importante: Apenas salva localmente, não envia ao servidor a cada letra digitada
   el.guiche.addEventListener('input', () => {
     state.guiche = el.guiche.value; 
-    const novoTs = Date.now(); state.ts = novoTs;
-    runTransaction(getStateRef(), () => { return { number: state.number, guiche: state.guiche, ts: novoTs }; });
-    updateDisplay();
+    localStorage.setItem('meuGuiche', state.guiche);
+    el.guicheTxt.textContent = getSetorMessage(currentPrefix, state.guiche);
   });
 
   document.getElementById("btnNext").addEventListener('click', next);
@@ -526,7 +536,7 @@
           if (isInit) {
             currentPrefix = remote.prefix;
             state.number = remote.number;
-            state.guiche = remote.guiche;
+            state.guiche = remote.guiche; // O painel sempre atualiza o guiche remotamente
             state.ts = remote.ts;
             updateDisplay(true); 
             isInit = false;
@@ -536,7 +546,7 @@
           if (remote.ts !== state.ts) {
             currentPrefix = remote.prefix;
             state.number = remote.number;
-            state.guiche = remote.guiche;
+            state.guiche = remote.guiche; // O painel sempre atualiza o guiche remotamente
             state.ts = remote.ts;
 
             updateDisplay();
