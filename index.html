@@ -335,9 +335,14 @@
     const msg = new SpeechSynthesisUtterance(frase);
     
     const vozes = window.speechSynthesis.getVoices();
-    const vozFeminina = vozes.find(voz => voz.lang === 'pt-BR' && (voz.name.includes('Luciana') || voz.name.includes('Maria') || voz.name.includes('Google') || voz.name.includes('Feminine')));
-    
-    if (vozFeminina) msg.voice = vozFeminina;
+    const vozMasculina = vozes.find(voz => voz.lang === 'pt-BR' && (
+    voz.name.includes('Daniel') || 
+    voz.name.includes('Thiago') || 
+    voz.name.includes('Felipe') || 
+    voz.name.includes('Masculine') || 
+    voz.name.includes('Male')
+    )); 
+    if (vozMasculina) msg.voice = vozMasculina;
     msg.lang = "pt-BR";
     msg.rate = 1.8; 
     msg.pitch = 1;
