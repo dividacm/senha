@@ -316,48 +316,59 @@
   }
 
   function anunciarSenha() {
-    const foneticaLetras = {
-      'A': 'A', 'B': 'Bê', 'C': 'Cê', 'D': 'Dê', 'E': 'É',
-      'F': 'Efe', 'G': 'Gê', 'I': 'Í', 'J': 'Jota', 'T': "Tê"
-    };
-    const letraFalada = foneticaLetras[currentPrefix] || currentPrefix;
-    const numeroFalado = Number(state.number);
-    const baseVoiceMessage = setorMessages[currentPrefix] || 'Dirija-se ao atendimento';
-    let vozMensagem = baseVoiceMessage;
-    
-    if (state.guiche) {
-      const textoGuiche = String(state.guiche).toLowerCase();
-      const prefixo = (textoGuiche.includes('guich') || textoGuiche.includes('mesa') || textoGuiche.includes('sala')) ? '' : 'Guichê ';
-      vozMensagem = `${baseVoiceMessage}, ${prefixo}${state.guiche}`;
-    }
-    
-    const frase = `Senha, ${letraFalada}, ${numeroFalado}. ${vozMensagem}`;
-    const msg = new SpeechSynthesisUtterance(frase);
-    
-    const vozes = window.speechSynthesis.getVoices();
-    const vozMasculina = vozes.find(voz => voz.lang === 'pt-BR' && (
-    voz.name.includes('Daniel') || 
-    voz.name.includes('Thiago') || 
-    voz.name.includes('Felipe') || 
-    voz.name.includes('Masculine') || 
-    voz.name.includes('Male')
-    )); 
-    if (vozMasculina) msg.voice = vozMasculina;
-    msg.lang = "pt-BR";
-    msg.rate = 1.8; 
-    msg.pitch = 1;
-    msg.volume = 1;
-    
-    const somAtual = somChamada.cloneNode(); 
-    
-    somAtual.play().then(() => {
-      setTimeout(() => {
-        window.speechSynthesis.speak(msg);
-      }, 800); 
-    }).catch(e => {
-      window.speechSynthesis.speak(msg);
-    });
+  const foneticaLetras = {
+    'A': 'A', 'B': 'Bê', 'C': 'Cê', 'D': 'Dê', 'E': 'É',
+    'F': 'Efe', 'G': 'Gê', 'H': 'Agá', 'I': 'I', // 'I' sem acento flui melhor
+    'J': 'Jota', 'L': 'Ele', 'M': 'Eme', 'N': 'Ene',
+    'O': 'Ó', 'P': 'Pê', 'Q': 'Quê', 'R': 'Erre',
+    'S': 'Esse', 'T': 'Tê', 'U': 'U', 'V': 'Vê', 'X': 'Xis'
+  };
+
+  // CORREÇÃO: Mapeia cada letra da sigla individualmente (Ex: ITBI -> "I Tê Bê I")
+  const letraFalada = currentPrefix
+    .split('')
+    .map(l => foneticaLetras[l.toUpperCase()] || l)
+    .join(' ');
+
+  const numeroFalado = Number(state.number);
+  const baseVoiceMessage = setorMessages[currentPrefix] || 'Dirija-se ao atendimento';
+  let vozMensagem = baseVoiceMessage;
+
+  if (state.guiche) {
+    const textoGuiche = String(state.guiche).toLowerCase();
+    const prefixo = (textoGuiche.includes('guich') || textoGuiche.includes('mesa') || textoGuiche.includes('sala')) ? '' : 'Guichê ';
+    vozMensagem = `${baseVoiceMessage}, ${prefixo}${state.guiche}`;
   }
+
+  const frase = `Senha, ${letraFalada}, ${numeroFalado}. ${vozMensagem}`;
+  const msg = new SpeechSynthesisUtterance(frase);
+
+  // Configuração de Voz
+  const vozes = window.speechSynthesis.getVoices();
+  const vozMasculina = vozes.find(voz => voz.lang === 'pt-BR' && (
+    voz.name.includes('Daniel') ||
+    voz.name.includes('Thiago') ||
+    voz.name.includes('Felipe') ||
+    voz.name.includes('Masculine') ||
+    voz.name.includes('Male')
+  ));
+
+  if (vozMasculina) msg.voice = vozMasculina;
+  msg.lang = "pt-BR";
+  msg.rate = 1.0; // Reduzi de 1.8 para 1.0. 1.8 é extremamente rápido e pode "engolir" sílabas.
+  msg.pitch = 1;
+  msg.volume = 1;
+
+  // Execução com Áudio
+  const somAtual = somChamada.cloneNode();
+  somAtual.play().then(() => {
+    setTimeout(() => {
+      window.speechSynthesis.speak(msg);
+    }, 800);
+  }).catch(e => {
+    window.speechSynthesis.speak(msg);
+  });
+}
 
   function getStateRef(){ return ref(db, `${salaID}/setores/${currentPrefix}`); }
 
