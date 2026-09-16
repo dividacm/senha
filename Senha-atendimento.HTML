@@ -179,6 +179,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
   import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
   const firebaseConfig = { 
@@ -192,6 +193,23 @@
   };
 
   const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const isPanel = new URLSearchParams(window.location.search).get('painel') === '1';
+
+  if (!isPanel) {
+    const user = await new Promise(resolve => {
+      const unsubscribe = onAuthStateChanged(auth, currentUser => {
+        unsubscribe();
+        resolve(currentUser);
+      });
+    });
+
+    if (!user) {
+      window.location.replace('./operador.html');
+      throw new Error('Autenticação obrigatória para o operador.');
+    }
+  }
+
   const db = getDatabase(app);
   
   // Instância de áudio para o aviso sonoro antes da fala
@@ -204,9 +222,6 @@
   let loaded = false;
   let currentListener = null;
   let history = []; 
-  
-  // Utilização de URLSearchParams para maior robustez na leitura do parâmetro
-  const isPanel = new URLSearchParams(window.location.search).get('painel') === '1';
   
   const el = {
     senhaBig: document.getElementById("senhaBig"),
