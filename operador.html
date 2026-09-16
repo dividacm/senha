@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Login — Senhas</title>
 <style>
-  :root { --bg:#0f172a; --card:#111827; --text:#e5e7eb; --muted:#9ca3af; --brand:#60a5fa; --danger:#ef4444; }
+  :root { --bg:#0f172a; --card:#111827; --text:#e5e7eb; --muted:#9ca3af; --brand:#60a5fa; }
   * { box-sizing:border-box; }
   html,body { margin:0; min-height:100%; font-family:system-ui,sans-serif; background:radial-gradient(900px 600px at 50% -20%,#1e293b,var(--bg)); color:var(--text); }
   body { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
@@ -18,13 +18,10 @@
   button { width:100%; margin-top:20px; padding:12px 14px; border:0; border-radius:12px; background:#2563eb; color:white; font-weight:700; cursor:pointer; font-size:16px; }
   button:disabled { opacity:.55; cursor:not-allowed; }
   #erro { min-height:20px; margin-top:14px; color:#fca5a5; font-size:14px; }
-  #app { position:fixed; inset:0; width:100%; height:100%; border:0; display:none; background:#0f172a; }
-  .topbar { position:fixed; top:0; left:0; right:0; z-index:10; display:none; justify-content:flex-end; padding:10px 14px; pointer-events:none; }
-  .topbar button { pointer-events:auto; width:auto; margin:0; padding:8px 12px; font-size:13px; background:#334155; }
 </style>
 </head>
 <body>
-  <main class="card" id="loginCard">
+  <main class="card">
     <h1>Área do operador</h1>
     <p>Entre com seu usuário para acessar o atendimento.</p>
     <form id="loginForm">
@@ -37,12 +34,9 @@
     </form>
   </main>
 
-  <div class="topbar" id="topbar"><button id="logoutBtn" type="button">Sair</button></div>
-  <iframe id="app" title="Sistema de senhas"></iframe>
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDPcPaWLF4dxQ_091qiru1w9HXS05rtcz8",
@@ -56,17 +50,17 @@
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
-  const loginCard = document.getElementById('loginCard');
   const form = document.getElementById('loginForm');
   const loginBtn = document.getElementById('loginBtn');
   const erro = document.getElementById('erro');
-  const frame = document.getElementById('app');
-  const topbar = document.getElementById('topbar');
-  const logoutBtn = document.getElementById('logoutBtn');
 
   function usernameToEmail(username) {
     return `${username.toLowerCase()}@fila-atendimento.local`;
   }
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) window.location.replace('./Senha-atendimento.HTML');
+  });
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -82,7 +76,6 @@
     loginBtn.textContent = 'Entrando...';
     try {
       await signInWithEmailAndPassword(auth, usernameToEmail(username), form.password.value);
-      form.reset();
     } catch (error) {
       console.error(error);
       const messages = {
@@ -97,24 +90,6 @@
       loginBtn.disabled = false;
       loginBtn.textContent = 'Entrar';
     }
-  });
-
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      loginCard.style.display = 'none';
-      frame.src = './Senha-atendimento.HTML';
-      frame.style.display = 'block';
-      topbar.style.display = 'flex';
-    } else {
-      frame.src = 'about:blank';
-      frame.style.display = 'none';
-      topbar.style.display = 'none';
-      loginCard.style.display = 'block';
-    }
-  });
-
-  logoutBtn.addEventListener('click', async () => {
-    await signOut(auth);
   });
 </script>
 </body>
